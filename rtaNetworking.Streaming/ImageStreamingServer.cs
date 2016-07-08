@@ -264,8 +264,8 @@ namespace rtaNetworking.Streaming
                 // System.Console.WriteLine(System.Windows.Forms.Cursor.Current);
 
                 if (showCursor)
-                    System.Windows.Forms.Cursors.Default.Draw(srcGraphics,
-                        // System.Windows.Forms.Cursor.Current.Draw(srcGraphics,
+                    // System.Windows.Forms.Cursors.Default.Draw(srcGraphics,
+                        System.Windows.Forms.Cursor.Current.Draw(srcGraphics,
                         new System.Drawing.Rectangle(System.Windows.Forms.Cursor.Position, curSize)
                 );
 
