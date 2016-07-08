@@ -184,7 +184,9 @@ namespace rtaNetworking.Streaming
 
                 }
             }
-            catch { }
+            catch(System.Exception ex) {
+                System.Console.WriteLine(ex.Message);
+            }
             finally
             {
                 lock (_Clients)
@@ -282,7 +284,7 @@ namespace rtaNetworking.Streaming
             }
 
             return result;
-        }
+        } // End Function CaptureScreen 
 
 
 
@@ -293,6 +295,8 @@ namespace rtaNetworking.Streaming
         /// <returns></returns>
         public static System.Collections.Generic.IEnumerable<System.Drawing.Image> Snapshots(int width, int height, bool showCursor)
         {
+            System.Windows.Forms.Screen thisScreen = System.Windows.Forms.Screen.AllScreens[1];
+
             System.Drawing.Size size = new System.Drawing.Size(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width
                 , System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height);
 
@@ -308,19 +312,18 @@ namespace rtaNetworking.Streaming
             {
                 dstImage = new System.Drawing.Bitmap(width, height);
                 dstGraphics = System.Drawing.Graphics.FromImage(dstImage);
-            }
+            } // End if (scaled) 
 
             System.Drawing.Rectangle src = new System.Drawing.Rectangle(0, 0, size.Width, size.Height);
             System.Drawing.Rectangle dst = new System.Drawing.Rectangle(0, 0, width, height);
             System.Drawing.Size curSize = new System.Drawing.Size(32, 32);
 
             while (true)
-            {
-
-
+            {   
                 //srcGraphics.CopyFromScreen(0, 0, 0, 0, size);
-                srcGraphics.CopyFromScreen(System.Windows.Forms.Screen.AllScreens[1].Bounds.X
-                    , System.Windows.Forms.Screen.AllScreens[1].Bounds.Y
+                srcGraphics.CopyFromScreen(
+                      thisScreen.WorkingArea.Left
+                    , thisScreen.WorkingArea.Right
                     , 0, 0, size
                 );
 
@@ -344,18 +347,24 @@ namespace rtaNetworking.Streaming
                     {
                         if (pci.flags == CURSOR_SHOWING)
                         {
-                            DrawIcon(srcGraphics.GetHdc(), pci.ptScreenPos.x, pci.ptScreenPos.y, pci.hCursor);
-                            srcGraphics.ReleaseHdc();
-                        }
-                    }
-                }
+
+                            // Check if cursor on the screen that is being captured...
+                            if (pci.ptScreenPos.x >= thisScreen.WorkingArea.Left && pci.ptScreenPos.x <= thisScreen.WorkingArea.Right)
+                            {
+                                DrawIcon(srcGraphics.GetHdc(), pci.ptScreenPos.x, pci.ptScreenPos.y, pci.hCursor);
+                                srcGraphics.ReleaseHdc();
+                            } // End if (pci.ptScreenPos.x >= thisScreen.Bounds.X && pci.ptScreenPos.x <= thisScreen.Bounds.X + thisScreen.Bounds.Width) 
+
+                        } // End if (pci.flags == CURSOR_SHOWING) 
+                    } // End if (GetCursorInfo(out pci)) 
+                } // End if (showCursor) 
 
                 if (scaled)
                     dstGraphics.DrawImage(srcImage, dst, src, System.Drawing.GraphicsUnit.Pixel);
 
                 yield return dstImage;
 
-            }
+            } // Whend 
 
             srcGraphics.Dispose();
             dstGraphics.Dispose();
@@ -364,7 +373,7 @@ namespace rtaNetworking.Streaming
             dstImage.Dispose();
 
             yield break;
-        }
+        } // End Function Snapshots 
 
 
         internal static System.Collections.Generic.IEnumerable<System.IO.MemoryStream> Streams(this System.Collections.Generic.IEnumerable<System.Drawing.Image> source)
@@ -382,7 +391,7 @@ namespace rtaNetworking.Streaming
             ms = null;
 
             yield break;
-        }
+        } // End Function Streams 
 
 
     }
