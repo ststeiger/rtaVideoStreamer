@@ -319,7 +319,10 @@ namespace rtaNetworking.Streaming
 
 
                 //srcGraphics.CopyFromScreen(0, 0, 0, 0, size);
-                srcGraphics.CopyFromScreen(System.Windows.Forms.Screen.AllScreens[1].Bounds.X, System.Windows.Forms.Screen.AllScreens[1].Bounds.Y, 0, 0, size);
+                srcGraphics.CopyFromScreen(System.Windows.Forms.Screen.AllScreens[1].Bounds.X
+                    , System.Windows.Forms.Screen.AllScreens[1].Bounds.Y
+                    , 0, 0, size
+                );
 
                 /*
                 // This results in the wrong cursor...
