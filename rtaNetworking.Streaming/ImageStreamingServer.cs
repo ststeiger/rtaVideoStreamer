@@ -20,7 +20,8 @@ namespace rtaNetworking.Streaming
 
 
         public ImageStreamingServer()
-            : this(Screen.Snapshots(600, 450, true))
+        //: this(Screen.Snapshots(600, 450, true))
+            : this(Screen.Snapshots(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Size.Width, System.Windows.Forms.Screen.PrimaryScreen.Bounds.Size.Height, true))
         {
 
         }
@@ -129,7 +130,6 @@ namespace rtaNetworking.Streaming
         /// <param name="state"></param>
         private void ServerThread(object state)
         {
-
             try
             {
                 System.Net.Sockets.Socket Server = new System.Net.Sockets.Socket(
@@ -158,10 +158,9 @@ namespace rtaNetworking.Streaming
         /// <param name="client"></param>
         private void ClientThread(object client)
         {
-
             System.Net.Sockets.Socket socket = (System.Net.Sockets.Socket)client;
-
             System.Diagnostics.Debug.WriteLine(string.Format("New client from {0}", socket.RemoteEndPoint.ToString()));
+
 
             lock (_Clients)
                 _Clients.Add(socket);
@@ -194,14 +193,12 @@ namespace rtaNetworking.Streaming
         }
 
 
-        #region IDisposable Members
-
         public void Dispose()
         {
             this.Stop();
         }
 
-        #endregion
+
     }
 
 
@@ -225,6 +222,68 @@ namespace rtaNetworking.Streaming
         {
             return Screen.Snapshots(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width, System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height, true);
         }
+
+
+        [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+        struct CURSORINFO
+        {
+            public System.Int32 cbSize;
+            public System.Int32 flags;
+            public System.IntPtr hCursor;
+            public POINTAPI ptScreenPos;
+        }
+
+        [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+        struct POINTAPI
+        {
+            public int x;
+            public int y;
+        }
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        static extern bool GetCursorInfo(out CURSORINFO pci);
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        static extern bool DrawIcon(System.IntPtr hDC, int X, int Y, System.IntPtr hIcon);
+
+        const System.Int32 CURSOR_SHOWING = 0x00000001;
+
+        public static System.Drawing.Bitmap CaptureScreen(System.Windows.Forms.Screen thisScreen, bool CaptureMouse)
+        {
+            System.Drawing.Bitmap result = new System.Drawing.Bitmap(thisScreen.Bounds.Width
+                , System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height
+                , System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+
+            try
+            {
+                using (System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(result))
+                {
+                    g.CopyFromScreen(0, 0, 0, 0, thisScreen.Bounds.Size, System.Drawing.CopyPixelOperation.SourceCopy);
+
+                    if (CaptureMouse)
+                    {
+                        CURSORINFO pci;
+                        pci.cbSize = System.Runtime.InteropServices.Marshal.SizeOf(typeof(CURSORINFO));
+
+                        if (GetCursorInfo(out pci))
+                        {
+                            if (pci.flags == CURSOR_SHOWING)
+                            {
+                                DrawIcon(g.GetHdc(), pci.ptScreenPos.x, pci.ptScreenPos.y, pci.hCursor);
+                                g.ReleaseHdc();
+                            }
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                result = null;
+            }
+
+            return result;
+        }
+
 
 
         /// <summary>
@@ -257,17 +316,36 @@ namespace rtaNetworking.Streaming
 
             while (true)
             {
-                srcGraphics.CopyFromScreen(0, 0, 0, 0, size);
 
 
-                // System.Windows.Forms.Cursor cur  = System.Windows.Forms.Cursor.Current;
-                // System.Console.WriteLine(System.Windows.Forms.Cursor.Current);
+                //srcGraphics.CopyFromScreen(0, 0, 0, 0, size);
+                srcGraphics.CopyFromScreen(System.Windows.Forms.Screen.AllScreens[1].Bounds.X, System.Windows.Forms.Screen.AllScreens[1].Bounds.Y, 0, 0, size);
 
+                /*
+                // This results in the wrong cursor...
                 if (showCursor)
                     // System.Windows.Forms.Cursors.Default.Draw(srcGraphics,
-                        System.Windows.Forms.Cursor.Current.Draw(srcGraphics,
+                    System.Windows.Forms.Cursor.Current.Draw(srcGraphics,
                         new System.Drawing.Rectangle(System.Windows.Forms.Cursor.Position, curSize)
                 );
+                */
+
+
+                // https://stackoverflow.com/questions/6750056/how-to-capture-the-screen-and-mouse-pointer-using-windows-apis
+                if (showCursor)
+                {
+                    CURSORINFO pci;
+                    pci.cbSize = System.Runtime.InteropServices.Marshal.SizeOf(typeof(CURSORINFO));
+
+                    if (GetCursorInfo(out pci))
+                    {
+                        if (pci.flags == CURSOR_SHOWING)
+                        {
+                            DrawIcon(srcGraphics.GetHdc(), pci.ptScreenPos.x, pci.ptScreenPos.y, pci.hCursor);
+                            srcGraphics.ReleaseHdc();
+                        }
+                    }
+                }
 
                 if (scaled)
                     dstGraphics.DrawImage(srcImage, dst, src, System.Drawing.GraphicsUnit.Pixel);
