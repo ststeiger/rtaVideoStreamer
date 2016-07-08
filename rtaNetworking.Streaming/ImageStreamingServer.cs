@@ -328,6 +328,7 @@ namespace rtaNetworking.Streaming
                     , 0, 0, size
                 );
 
+                
                 /*
                 // This results in the wrong cursor...
                 if (showCursor)
@@ -337,7 +338,7 @@ namespace rtaNetworking.Streaming
                 );
                 */
 
-
+                
                 // https://stackoverflow.com/questions/6750056/how-to-capture-the-screen-and-mouse-pointer-using-windows-apis
                 if (showCursor)
                 {
@@ -359,6 +360,8 @@ namespace rtaNetworking.Streaming
                         } // End if (pci.flags == CURSOR_SHOWING) 
                     } // End if (GetCursorInfo(out pci)) 
                 } // End if (showCursor) 
+
+                
 
                 if (scaled)
                     dstGraphics.DrawImage(srcImage, dst, src, System.Drawing.GraphicsUnit.Pixel);
