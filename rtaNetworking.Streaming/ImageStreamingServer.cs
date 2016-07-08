@@ -295,7 +295,8 @@ namespace rtaNetworking.Streaming
         /// <returns></returns>
         public static System.Collections.Generic.IEnumerable<System.Drawing.Image> Snapshots(int width, int height, bool showCursor)
         {
-            System.Windows.Forms.Screen thisScreen = System.Windows.Forms.Screen.AllScreens[1];
+            // System.Windows.Forms.Screen thisScreen = System.Windows.Forms.Screen.AllScreens[1];
+            System.Windows.Forms.Screen thisScreen = System.Windows.Forms.Screen.PrimaryScreen;
 
             System.Drawing.Size size = new System.Drawing.Size(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width
                 , System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height);
@@ -323,7 +324,7 @@ namespace rtaNetworking.Streaming
                 //srcGraphics.CopyFromScreen(0, 0, 0, 0, size);
                 srcGraphics.CopyFromScreen(
                       thisScreen.WorkingArea.Left
-                    , thisScreen.WorkingArea.Right
+                    , thisScreen.WorkingArea.Top // Top is bottom...
                     , 0, 0, size
                 );
 
@@ -351,7 +352,7 @@ namespace rtaNetworking.Streaming
                             // Check if cursor on the screen that is being captured...
                             if (pci.ptScreenPos.x >= thisScreen.WorkingArea.Left && pci.ptScreenPos.x <= thisScreen.WorkingArea.Right)
                             {
-                                DrawIcon(srcGraphics.GetHdc(), pci.ptScreenPos.x, pci.ptScreenPos.y, pci.hCursor);
+                                DrawIcon(srcGraphics.GetHdc(), pci.ptScreenPos.x - thisScreen.WorkingArea.Left, pci.ptScreenPos.y, pci.hCursor);
                                 srcGraphics.ReleaseHdc();
                             } // End if (pci.ptScreenPos.x >= thisScreen.Bounds.X && pci.ptScreenPos.x <= thisScreen.Bounds.X + thisScreen.Bounds.Width) 
 
