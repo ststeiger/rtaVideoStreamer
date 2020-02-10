@@ -22,7 +22,7 @@ namespace rtaStreamingServer
             WaitForKeyPress();
 
             StopServer();
-        }
+        } // End Sub Main 
 
 
         static void WaitForKeyPress()
@@ -34,7 +34,7 @@ namespace rtaStreamingServer
             } // Whend 
 
             System.Console.ReadKey(); // Flush
-        }
+        } // End Sub WaitForKeyPress 
 
 
         static void WaitForEnter()
@@ -55,7 +55,7 @@ namespace rtaStreamingServer
                     System.Console.Clear();
 
             } while (cc != System.ConsoleKey.Enter);
-        }
+        } // End Sub WaitForEnter 
 
 
         static void TestScreenshot()
@@ -73,7 +73,7 @@ namespace rtaStreamingServer
             }
 
             throw new System.NotImplementedException("Screenshot functionality not implemented for your platform...");
-        }
+        } // End Sub TestScreenshot 
 
 
         static void TestLinuxScreenshot()
@@ -81,14 +81,15 @@ namespace rtaStreamingServer
             System.Drawing.Bitmap bmp = LinuxScreenShot.GetScreenshot();
             System.Console.WriteLine(bmp);
             bmp.Save(@" Screenshot.png", System.Drawing.Imaging.ImageFormat.Png);
-        }
+        } // End Sub TestLinuxScreenshot 
+
 
         static void TestWindowsScreenshot()
         {
             System.Drawing.Bitmap bmp = CaptureEntireDesktop.CaptureDesktop();
             System.Console.WriteLine(bmp);
             bmp.Save(@"Screenshot.png", System.Drawing.Imaging.ImageFormat.Png);
-        }
+        } // End Sub TestWindowsScreenshot 
 
 
 
@@ -106,22 +107,22 @@ namespace rtaStreamingServer
 
 
             System.Timers.Timer tmr = new System.Timers.Timer(200);
-            tmr.Elapsed += timer1_Tick;
+            tmr.Elapsed += OnTimer1_Tick;
             // tmr.AutoReset = true;
             tmr.Enabled = true;
 
             BrowserWrapper.OpenBrowser(link);
-        }
+        } // End Sub RunServer 
 
 
         static void StopServer()
         {
             if (_Server != null)
                 _Server.Stop();
-        }
+        } // End Sub StopServer 
 
 
-        private static void timer1_Tick(object source, System.Timers.ElapsedEventArgs e)
+        private static void OnTimer1_Tick(object source, System.Timers.ElapsedEventArgs e)
         {
             System.Console.WriteLine("The Elapsed event was raised at {0:HH:mm:ss.fff}", e.SignalTime);
 
@@ -129,10 +130,10 @@ namespace rtaStreamingServer
 
             System.Console.Write("Clients: ");
             System.Console.WriteLine(count.ToString());
-        }
+        } // End Sub OnTimer1_Tick 
 
 
-    }
+    } // End Class Program 
 
 
-}
+} // End Namespace rtaStreamingServer 
