@@ -43,7 +43,7 @@ namespace rtaStreamingServer
             if (System.Environment.OSVersion.Platform == System.PlatformID.Unix)
                 return GetXorgScreen();
             
-            return System.Windows.Forms.Screen.GetBounds(System.Drawing.Point.Empty);
+            return rtaNetworking.Windows.Screen.GetBounds(System.Drawing.Point.Empty);
         } // End Function GetScrBounds
         
         
@@ -71,7 +71,7 @@ namespace rtaStreamingServer
 
         // http://jalpesh.blogspot.com/2007/06/how-to-take-screenshot-in-c.html
         // Tools.Graphics.ScreenShot.GetScreenshot(this.PictureBox1);
-        public static void GetScreenshot(System.Windows.Forms.PictureBox pbThisPictureBox)
+        public static void GetScreenshot(rtaNetworking.Windows.PictureBox pbThisPictureBox)
         {
             /*
             if (this.pictureBox1.Image != null)
@@ -94,7 +94,7 @@ namespace rtaStreamingServer
         // Tools.Graphics.ScreenShot.SaveScreenshot(@"C:\Users\Stefan.Steiger.COR\Desktop\test.jpg");
         public static void SaveScreenshot(string strFileNameAndPath)
         {
-            System.Drawing.Rectangle rectBounds = System.Windows.Forms.Screen.GetBounds(System.Drawing.Point.Empty);
+            System.Drawing.Rectangle rectBounds = rtaNetworking.Windows.Screen.GetBounds(System.Drawing.Point.Empty);
             using (System.Drawing.Bitmap bmpScreenshotBitmap = new System.Drawing.Bitmap(rectBounds.Width, rectBounds.Height))
             {
                 

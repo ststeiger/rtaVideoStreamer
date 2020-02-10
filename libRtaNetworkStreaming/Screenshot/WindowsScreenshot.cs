@@ -8,7 +8,7 @@ namespace rtaStreamingServer
     public class CaptureSingleMonitor 
     {
 
-        public static System.Drawing.Bitmap CaptureMonitor(System.Windows.Forms.Screen monitor, bool workingAreaOnly)
+        public static System.Drawing.Bitmap CaptureMonitor(rtaNetworking.Windows.Screen monitor, bool workingAreaOnly)
         {
             System.Drawing.Rectangle region;
 
@@ -17,7 +17,7 @@ namespace rtaStreamingServer
             return WindowsScreenshot.CaptureRegion(region);
         }
 
-        public static System.Drawing.Bitmap CaptureMonitor(System.Windows.Forms.Screen monitor)
+        public static System.Drawing.Bitmap CaptureMonitor(rtaNetworking.Windows.Screen monitor)
         {
             return CaptureMonitor(monitor, false);
         }
@@ -29,7 +29,7 @@ namespace rtaStreamingServer
 
         public static System.Drawing.Bitmap CaptureMonitor(int index, bool workingAreaOnly)
         {
-            return CaptureMonitor(System.Windows.Forms.Screen.AllScreens[index], workingAreaOnly);
+            return CaptureMonitor(rtaNetworking.Windows.Screen.AllScreens[index], workingAreaOnly);
         }
     }
 
@@ -44,14 +44,14 @@ namespace rtaStreamingServer
         public static System.Drawing.Bitmap CaptureDesktop(bool workingAreaOnly)
         {
             System.Drawing.Rectangle desktop;
-            System.Windows.Forms.Screen[] screens;
+            rtaNetworking.Windows.Screen[] screens;
 
             desktop = System.Drawing.Rectangle.Empty;
-            screens = System.Windows.Forms.Screen.AllScreens;
+            screens = rtaNetworking.Windows.Screen.AllScreens;
 
             for (int i = 0; i < screens.Length; i++)
             {
-                System.Windows.Forms.Screen screen;
+                rtaNetworking.Windows.Screen screen;
                 screen = screens[i];
                 desktop = System.Drawing.Rectangle.Union(desktop, workingAreaOnly ? screen.WorkingArea : screen.Bounds);
             }

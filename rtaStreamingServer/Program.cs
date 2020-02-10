@@ -10,14 +10,13 @@ namespace rtaStreamingServer
 
         static void Main(string[] args)
         {
-            // RunServer();
+            // TestScreenshot();
+
+            RunServer();
 
             // https://www.cyotek.com/blog/capturing-screenshots-using-csharp-and-p-invoke
 
 
-            TestScreenshot();
-            
-            
             System.Console.WriteLine(" --- Press any key to continue --- ");
             // System.Console.ReadKey();
             WaitForKeyPress();

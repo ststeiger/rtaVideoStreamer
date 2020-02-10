@@ -5,8 +5,6 @@
 // Date         : April 2012
 // -------------------------------------------------
 
-using libRtaNetworkStreaming;
-
 
 namespace rtaNetworking.Streaming
 {
@@ -28,7 +26,7 @@ namespace rtaNetworking.Streaming
         /// Gets or sets the source of images that will be streamed to the 
         /// any connected client.
         /// </summary>
-        public System.Collections.Generic.IEnumerable<System.Drawing.Image> ImagesSource { get; set; }
+        // public System.Collections.Generic.IEnumerable<System.Drawing.Image> ImagesSource { get; set; }
 
 
         
@@ -49,15 +47,21 @@ namespace rtaNetworking.Streaming
         /// </summary>
         public bool IsRunning { get { return (_Thread != null && _Thread.IsAlive); } }
 
-        
-        
+
+
+        /// <summary>
+        /// Gets or sets the source of images that will be streamed to the 
+        /// any connected client.
+        /// </summary>
+        protected ImageStreamSource m_imageSource { get; set; }
+
+
         public ImageStreamingServer()
-        //: this(Screen.Snapshots(600, 450, true))
             : this(null)
         { }
         
         
-        public ImageStreamingServer(System.Collections.Generic.IEnumerable<System.Drawing.Image> imagesSource)
+        public ImageStreamingServer(ImageStreamSource imagesSource)
         {
             _Clients = new System.Collections.Generic.List<System.Net.Sockets.Socket>();
             _Thread = null;
@@ -65,9 +69,9 @@ namespace rtaNetworking.Streaming
             this.Interval = 50;
 
             if (imagesSource == null)
-                this.ImagesSource = OrigScreen.Snapshots();
+                this.m_imageSource = ImageStreamSource.Instance;
             else
-                this.ImagesSource = imagesSource;
+                this.m_imageSource = imagesSource;
         }
         
         
@@ -152,7 +156,7 @@ namespace rtaNetworking.Streaming
 
                 System.Diagnostics.Debug.WriteLine(string.Format("Server started on port {0}.", state));
 
-                foreach (System.Net.Sockets.Socket client in Server.IncommingConnectoins())
+                foreach (System.Net.Sockets.Socket client in Server.IncommingConnections())
                 {
                     System.Threading.ThreadPool.QueueUserWorkItem(new System.Threading.WaitCallback(ClientThread), client);
                 } // Next client 
@@ -186,14 +190,25 @@ namespace rtaNetworking.Streaming
                     wr.WriteHeader();
                     
                     // Streams the images from the source to the client.
-                    foreach (System.IO.MemoryStream imgStream in OrigScreen.Streams(this.ImagesSource))
+
+                    
+                    //foreach (System.IO.MemoryStream imgStream in this.m_imageSource.Streams)
+                    //{
+                    //    if (this.Interval > 0)
+                    //        System.Threading.Thread.Sleep(this.Interval);
+
+                    //    wr.Write(imgStream);
+                    //} // Next imgStream 
+                    
+
+                    foreach (byte[] buffer in this.m_imageSource.Buffers)
                     {
                         if (this.Interval > 0)
                             System.Threading.Thread.Sleep(this.Interval);
-                        
-                        wr.Write(imgStream);
-                    } // Next imgStream 
-                    
+
+                        wr.WriteWithHeader(buffer);
+                    } // Next buffer 
+
                 } // End Using wr 
             }
             catch(System.Exception ex) 
@@ -220,7 +235,7 @@ namespace rtaNetworking.Streaming
     static class SocketExtensions
     {
         
-        public static System.Collections.Generic.IEnumerable<System.Net.Sockets.Socket> IncommingConnectoins(this System.Net.Sockets.Socket server)
+        public static System.Collections.Generic.IEnumerable<System.Net.Sockets.Socket> IncommingConnections(this System.Net.Sockets.Socket server)
         {
             while (true)
                 yield return server.Accept();

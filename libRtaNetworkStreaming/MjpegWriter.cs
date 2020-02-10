@@ -60,6 +60,25 @@ namespace rtaNetworking.Streaming
         }
 
 
+        public void WriteWithHeader(byte[] source)
+        {
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+
+            sb.AppendLine();
+            sb.AppendLine(this.Boundary);
+            sb.AppendLine("Content-Type: image/jpeg");
+            sb.AppendLine("Content-Length: " + source.Length.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            sb.AppendLine();
+
+            Write(sb.ToString());
+
+            this.Stream.Write(source, 0, source.Length);
+            Write("\r\n");
+
+            this.Stream.Flush();
+        }
+
+
         public void Write(System.IO.MemoryStream imageStream)
         {
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
@@ -67,7 +86,7 @@ namespace rtaNetworking.Streaming
             sb.AppendLine();
             sb.AppendLine(this.Boundary);
             sb.AppendLine("Content-Type: image/jpeg");
-            sb.AppendLine("Content-Length: " + imageStream.Length.ToString());
+            sb.AppendLine("Content-Length: " + imageStream.Length.ToString(System.Globalization.CultureInfo.InvariantCulture));
             sb.AppendLine();
 
             Write(sb.ToString());

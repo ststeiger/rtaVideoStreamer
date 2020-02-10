@@ -1,9 +1,9 @@
 
-namespace libRtaNetworkStreaming
+namespace rtaNetworking.Windows
 {
     
     
-    public static class OrigScreen
+    public static class WindowsScreenshotWithCursor
     {
         
         
@@ -32,10 +32,10 @@ namespace libRtaNetworkStreaming
 
         const System.Int32 CURSOR_SHOWING = 0x00000001;
 
-        public static System.Drawing.Bitmap CaptureScreen(System.Windows.Forms.Screen thisScreen, bool CaptureMouse)
+        public static System.Drawing.Bitmap CaptureScreen(rtaNetworking.Windows.Screen thisScreen, bool CaptureMouse)
         {
             System.Drawing.Bitmap result = new System.Drawing.Bitmap(thisScreen.Bounds.Width
-                , System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height
+                , rtaNetworking.Windows.Screen.PrimaryScreen.Bounds.Height
                 , System.Drawing.Imaging.PixelFormat.Format24bppRgb);
 
             try
@@ -78,11 +78,11 @@ namespace libRtaNetworkStreaming
         /// <returns></returns>
         public static System.Collections.Generic.IEnumerable<System.Drawing.Image> Snapshots(int width, int height, bool showCursor)
         {
-            // System.Windows.Forms.Screen thisScreen = System.Windows.Forms.Screen.AllScreens[1];
-            System.Windows.Forms.Screen thisScreen = System.Windows.Forms.Screen.PrimaryScreen;
+            // rtaNetworking.Windows.Screen thisScreen = rtaNetworking.Windows.Screen.AllScreens[1];
+            rtaNetworking.Windows.Screen thisScreen = rtaNetworking.Windows.Screen.PrimaryScreen;
 
-            System.Drawing.Size size = new System.Drawing.Size(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width
-                , System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height);
+            System.Drawing.Size size = new System.Drawing.Size(rtaNetworking.Windows.Screen.PrimaryScreen.Bounds.Width
+                , rtaNetworking.Windows.Screen.PrimaryScreen.Bounds.Height);
 
             System.Drawing.Bitmap srcImage = new System.Drawing.Bitmap(size.Width, size.Height);
             System.Drawing.Graphics srcGraphics = System.Drawing.Graphics.FromImage(srcImage);
@@ -162,7 +162,7 @@ namespace libRtaNetworkStreaming
         
         public static System.Collections.Generic.IEnumerable<System.Drawing.Image> Snapshots()
         {
-            return Snapshots(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width, System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height, true);
+            return Snapshots(rtaNetworking.Windows.Screen.PrimaryScreen.Bounds.Width, rtaNetworking.Windows.Screen.PrimaryScreen.Bounds.Height, true);
         }
         
         

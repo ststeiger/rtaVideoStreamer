@@ -1,7 +1,6 @@
 ﻿
-namespace System.Windows.Forms
+namespace rtaNetworking.Windows
 {
-
 
 
     public class PictureBox
@@ -10,201 +9,7 @@ namespace System.Windows.Forms
     }
 
 
-    // use this in cases where the Native API takes a POINT not a POINT*
-    // classes marshal by ref.
-    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
-    public struct POINTSTRUCT
-    {
-        public int x;
-        public int y;
-        public POINTSTRUCT(int x, int y)
-        {
-            this.x = x;
-            this.y = y;
-        }
-    }
 
-
-
-    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
-    public struct RECT
-    {
-        public int left;
-        public int top;
-        public int right;
-        public int bottom;
-
-        public RECT(int left, int top, int right, int bottom)
-        {
-            this.left = left;
-            this.top = top;
-            this.right = right;
-            this.bottom = bottom;
-        }
-
-        public RECT(System.Drawing.Rectangle r)
-        {
-            this.left = r.Left;
-            this.top = r.Top;
-            this.right = r.Right;
-            this.bottom = r.Bottom;
-        }
-
-        public static RECT FromXYWH(int x, int y, int width, int height)
-        {
-            return new RECT(x, y, x + width, y + height);
-        }
-
-        public System.Drawing.Size Size
-        {
-            get
-            {
-                return new System.Drawing.Size(this.right - this.left, this.bottom - this.top);
-            }
-        }
-    }
-
-
-    [Runtime.InteropServices.StructLayout(Runtime.InteropServices.LayoutKind.Sequential)]
-    public class COMRECT
-    {
-        public int left;
-        public int top;
-        public int right;
-        public int bottom;
-
-        public COMRECT()
-        {
-        }
-
-        public COMRECT(System.Drawing.Rectangle r)
-        {
-            this.left = r.X;
-            this.top = r.Y;
-            this.right = r.Right;
-            this.bottom = r.Bottom;
-        }
-
-
-        public COMRECT(int left, int top, int right, int bottom)
-        {
-            this.left = left;
-            this.top = top;
-            this.right = right;
-            this.bottom = bottom;
-        }
-
-        /* Unused
-        public RECT ToRECT() {
-            return new RECT(left, top, right, bottom);
-        }
-        */
-
-        public static COMRECT FromXYWH(int x, int y, int width, int height)
-        {
-            return new COMRECT(x, y, x + width, y + height);
-        }
-
-        public override string ToString()
-        {
-            return "Left = " + left + " Top " + top + " Right = " + right + " Bottom = " + bottom;
-        }
-    }
-
-
-
-    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential, CharSet = System.Runtime.InteropServices.CharSet.Auto, Pack = 4)]
-    public class MONITORINFOEX
-    {
-        internal int cbSize = Runtime.InteropServices.Marshal.SizeOf(typeof(MONITORINFOEX));
-        internal RECT rcMonitor = new RECT();
-        internal RECT rcWork = new RECT();
-        internal int dwFlags = 0;
-        [Runtime.InteropServices.MarshalAs(Runtime.InteropServices.UnmanagedType.ByValArray, SizeConst = 32)]
-        internal char[] szDevice = new char[32];
-    }
-
-    public class SystemInformation
-    {
-
-        public const int SM_CXSCREEN = 0;
-        public const int SM_CYSCREEN = 1;
-        public const int SM_CMONITORS = 80;
-
-
-        public const int SM_XVIRTUALSCREEN = 76;
-        public const int SM_YVIRTUALSCREEN = 77;
-        public const int SM_CXVIRTUALSCREEN = 78;
-        public const int SM_CYVIRTUALSCREEN = 79;
-
-
-        private static bool checkMultiMonitorSupport = false;
-        private static bool multiMonitorSupport = false;
-
-        [Runtime.InteropServices.DllImport("user32.dll", ExactSpelling = true, CharSet = Runtime.InteropServices.CharSet.Auto)]
-        [Runtime.Versioning.ResourceExposure(Runtime.Versioning.ResourceScope.None)]
-        public static extern int GetSystemMetrics(int nIndex);
-
-
-        private static bool MultiMonitorSupport
-        {
-            get
-            {
-                if (!checkMultiMonitorSupport)
-                {
-                    multiMonitorSupport = (GetSystemMetrics(SM_CMONITORS) != 0);
-                    checkMultiMonitorSupport = true;
-                }
-                return multiMonitorSupport;
-            }
-        }
-
-
-        public static System.Drawing.Size PrimaryMonitorSize
-        {
-            get
-            {
-                return new System.Drawing.Size(GetSystemMetrics(SM_CXSCREEN),
-                                GetSystemMetrics(SM_CYSCREEN));
-            }
-        }
-
-        public static Drawing.Rectangle VirtualScreen
-        {
-            get
-            {
-                if (MultiMonitorSupport)
-                {
-                    return new Drawing.Rectangle(GetSystemMetrics(SM_XVIRTUALSCREEN),
-                                         GetSystemMetrics(SM_YVIRTUALSCREEN),
-                                         GetSystemMetrics(SM_CXVIRTUALSCREEN),
-                                         GetSystemMetrics(SM_CYVIRTUALSCREEN));
-                }
-                else
-                {
-                    Drawing.Size size = PrimaryMonitorSize;
-                    return new Drawing.Rectangle(0, 0, size.Width, size.Height);
-                }
-            }
-        }
-
-        public const int SPI_GETWORKAREA = 48;
-
-        [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = Runtime.InteropServices.CharSet.Auto)]
-        [System.Runtime.Versioning.ResourceExposure(System.Runtime.Versioning.ResourceScope.None)]
-        public static extern bool SystemParametersInfo(int nAction, int nParam, ref RECT rc, int nUpdate);
-
-        public static Drawing.Rectangle WorkingArea
-        {
-            get
-            {
-                RECT rc = new RECT();
-                SystemParametersInfo(SPI_GETWORKAREA, 0, ref rc, 0);
-                return Drawing.Rectangle.FromLTRB(rc.left, rc.top, rc.right, rc.bottom);
-            }
-        }
-
-    }
 
 
     // https://referencesource.microsoft.com/#system.windows.forms/winforms/managed/system/winforms/Screen.cs,61c7e4f4309b6603,references
@@ -235,7 +40,7 @@ namespace System.Windows.Forms
         private System.Drawing.Rectangle workingArea = System.Drawing.Rectangle.Empty;
 
 
-        public Drawing.Rectangle Bounds
+        public System.Drawing.Rectangle Bounds
         {
             get
             {
@@ -246,20 +51,20 @@ namespace System.Windows.Forms
         
         private class MonitorEnumCallback
         {
-            public Collections.ArrayList screens = new Collections.ArrayList();
+            public System.Collections.ArrayList screens = new System.Collections.ArrayList();
 
-            public virtual bool Callback(IntPtr monitor, IntPtr hdc, IntPtr lprcMonitor, IntPtr lparam)
+            public virtual bool Callback(System.IntPtr monitor, System.IntPtr hdc, System.IntPtr lprcMonitor, System.IntPtr lparam)
             {
                 screens.Add(new Screen(monitor, hdc));
                 return true;
             }
         }
 
-        public delegate bool MonitorEnumProc(IntPtr monitor, IntPtr hdc, IntPtr lprcMonitor, IntPtr lParam);
+        public delegate bool MonitorEnumProc(System.IntPtr monitor, System.IntPtr hdc, System.IntPtr lprcMonitor, System.IntPtr lParam);
 
         [System.Runtime.InteropServices.DllImport("user32.dll", ExactSpelling = true)]
         [System.Runtime.Versioning.ResourceExposure(System.Runtime.Versioning.ResourceScope.None)]
-        public static extern bool EnumDisplayMonitors(Runtime.InteropServices.HandleRef hdc, COMRECT rcClip, MonitorEnumProc lpfnEnum, IntPtr dwData);
+        public static extern bool EnumDisplayMonitors(System.Runtime.InteropServices.HandleRef hdc, COMRECT rcClip, MonitorEnumProc lpfnEnum, System.IntPtr dwData);
         
 
         public static Screen[] AllScreens
@@ -272,7 +77,7 @@ namespace System.Windows.Forms
                     {
                         MonitorEnumCallback closure = new MonitorEnumCallback();
                         MonitorEnumProc proc = new MonitorEnumProc(closure.Callback);
-                        EnumDisplayMonitors(new Runtime.InteropServices.HandleRef(null, IntPtr.Zero), null, proc, IntPtr.Zero);
+                        EnumDisplayMonitors(new System.Runtime.InteropServices.HandleRef(null, System.IntPtr.Zero), null, proc, System.IntPtr.Zero);
 
                         if (closure.screens.Count > 0)
                         {
@@ -282,7 +87,7 @@ namespace System.Windows.Forms
                         }
                         else
                         {
-                            screens = new Screen[] { new Screen((IntPtr)PRIMARY_MONITOR) };
+                            screens = new Screen[] { new Screen((System.IntPtr)PRIMARY_MONITOR) };
                         }
                     }
                     else
@@ -319,7 +124,7 @@ namespace System.Windows.Forms
                 }
                 else
                 {
-                    return new Screen((IntPtr)PRIMARY_MONITOR, IntPtr.Zero);
+                    return new Screen((System.IntPtr)PRIMARY_MONITOR, System.IntPtr.Zero);
                 }
             }
         }
@@ -338,9 +143,9 @@ namespace System.Windows.Forms
         internal Screen(System.IntPtr monitor, System.IntPtr hdc)
         {
 
-            IntPtr screenDC = hdc;
+            System.IntPtr screenDC = hdc;
 
-            if (!multiMonitorSupport || monitor == (IntPtr)PRIMARY_MONITOR)
+            if (!multiMonitorSupport || monitor == (System.IntPtr)PRIMARY_MONITOR)
             {
                 // Single monitor system
                 //
@@ -355,7 +160,7 @@ namespace System.Windows.Forms
                 // the 'W' version just never fills out the struct properly on Win2K.
                 //
                 MONITORINFOEX info = new MONITORINFOEX();
-                GetMonitorInfo(new Runtime.InteropServices.HandleRef(null, monitor), info);
+                GetMonitorInfo(new System.Runtime.InteropServices.HandleRef(null, monitor), info);
 
                 bounds = System.Drawing.Rectangle.FromLTRB(info.rcMonitor.left, info.rcMonitor.top, info.rcMonitor.right, info.rcMonitor.bottom);
                 
@@ -407,7 +212,7 @@ namespace System.Windows.Forms
             }
         }
 
-        public Drawing.Rectangle WorkingArea
+        public System.Drawing.Rectangle WorkingArea
         {
             get
             {
@@ -417,9 +222,9 @@ namespace System.Windows.Forms
                 if (currentDesktopChangedCount != Screen.DesktopChangedCount)
                 {
 
-                    Threading.Interlocked.Exchange(ref currentDesktopChangedCount, Screen.DesktopChangedCount);
+                    System.Threading.Interlocked.Exchange(ref currentDesktopChangedCount, Screen.DesktopChangedCount);
 
-                    if (!multiMonitorSupport || hmonitor == (IntPtr)PRIMARY_MONITOR)
+                    if (!multiMonitorSupport || hmonitor == (System.IntPtr)PRIMARY_MONITOR)
                     {
                         // Single monitor system
                         //
@@ -432,8 +237,8 @@ namespace System.Windows.Forms
                         // the 'W' version just never fills out the struct properly on Win2K.
                         //
                         MONITORINFOEX info = new MONITORINFOEX();
-                        GetMonitorInfo(new Runtime.InteropServices.HandleRef(null, hmonitor), info);
-                        workingArea = Drawing.Rectangle.FromLTRB(info.rcWork.left, info.rcWork.top, info.rcWork.right, info.rcWork.bottom);
+                        GetMonitorInfo(new System.Runtime.InteropServices.HandleRef(null, hmonitor), info);
+                        workingArea = System.Drawing.Rectangle.FromLTRB(info.rcWork.left, info.rcWork.top, info.rcWork.right, info.rcWork.bottom);
                     }
                 }
 
@@ -453,14 +258,14 @@ namespace System.Windows.Forms
 
 
 
-        [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = Runtime.InteropServices.CharSet.Auto)]
+        [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Auto)]
         [System.Runtime.Versioning.ResourceExposure(System.Runtime.Versioning.ResourceScope.None)]
-        public static extern bool GetMonitorInfo(Runtime.InteropServices.HandleRef hmonitor, [Runtime.InteropServices.In, Runtime.InteropServices.Out]MONITORINFOEX info);
+        public static extern bool GetMonitorInfo(System.Runtime.InteropServices.HandleRef hmonitor, [System.Runtime.InteropServices.In, System.Runtime.InteropServices.Out]MONITORINFOEX info);
 
 
         [System.Runtime.InteropServices.DllImport("user32.dll", ExactSpelling = true)]
         [System.Runtime.Versioning.ResourceExposure(System.Runtime.Versioning.ResourceScope.None)]
-        public static extern IntPtr MonitorFromPoint(POINTSTRUCT pt, int flags);
+        public static extern System.IntPtr MonitorFromPoint(POINTSTRUCT pt, int flags);
         
         public static Screen FromPoint(System.Drawing.Point point)
         {
@@ -471,7 +276,7 @@ namespace System.Windows.Forms
             }
             else
             {
-                return new Screen((IntPtr)PRIMARY_MONITOR);
+                return new Screen((System.IntPtr)PRIMARY_MONITOR);
             }
         }
 
