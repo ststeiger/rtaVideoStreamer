@@ -1,10 +1,10 @@
 ﻿
-namespace Tools.Graphics
+namespace rtaStreamingServer
 {
 
 
     // https://stackoverflow.com/questions/3732486/take-a-screenshot-of-the-active-window-in-mono/5310777#5310777
-    class ScreenShot
+    public class LinuxScreenShot
     {
         // http://www.eggheadcafe.com/tutorials/aspnet/064b41e4-60bc-4d35-9136-368603bcc27a/7zip-lzma-inmemory-com.aspx
 

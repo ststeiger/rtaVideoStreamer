@@ -35,7 +35,7 @@ namespace rtaStreamingServer
 
         static void TestLinuxScreenshot()
         {
-            System.Drawing.Bitmap bmp = Tools.Graphics.ScreenShot.GetScreenshot();
+            System.Drawing.Bitmap bmp = LinuxScreenShot.GetScreenshot();
             System.Console.WriteLine(bmp);
             bmp.Save(@" Screenshot.png", System.Drawing.Imaging.ImageFormat.Png);
         }
