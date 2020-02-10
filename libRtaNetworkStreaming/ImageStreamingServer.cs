@@ -4,6 +4,10 @@
 // e-Mail       : ragheedemail@gmail.com
 // Date         : April 2012
 // -------------------------------------------------
+
+using libRtaNetworkStreaming;
+
+
 namespace rtaNetworking.Streaming
 {
 
@@ -12,45 +16,28 @@ namespace rtaNetworking.Streaming
     /// Provides a streaming server that can be used to stream any images source
     /// to any client.
     /// </summary>
-    public class ImageStreamingServer : System.IDisposable
+    public class ImageStreamingServer 
+        : System.IDisposable
     {
 
         private System.Collections.Generic.List<System.Net.Sockets.Socket> _Clients;
         private System.Threading.Thread _Thread;
-
-
-        public ImageStreamingServer()
-        //: this(Screen.Snapshots(600, 450, true))
-            : this(Screen.Snapshots(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Size.Width, System.Windows.Forms.Screen.PrimaryScreen.Bounds.Size.Height, true))
-        {
-
-        }
-
-
-        public ImageStreamingServer(System.Collections.Generic.IEnumerable<System.Drawing.Image> imagesSource)
-        {
-
-            _Clients = new System.Collections.Generic.List<System.Net.Sockets.Socket>();
-            _Thread = null;
-
-            this.ImagesSource = imagesSource;
-            this.Interval = 50;
-
-        }
-
-
+        
+        
         /// <summary>
         /// Gets or sets the source of images that will be streamed to the 
         /// any connected client.
         /// </summary>
         public System.Collections.Generic.IEnumerable<System.Drawing.Image> ImagesSource { get; set; }
 
+
+        
         /// <summary>
         /// Gets or sets the interval in milliseconds (or the delay time) between 
         /// the each image and the other of the stream (the default is . 
         /// </summary>
         public int Interval { get; set; }
-
+        
         /// <summary>
         /// Gets a collection of client sockets.
         /// </summary>
@@ -62,6 +49,29 @@ namespace rtaNetworking.Streaming
         /// </summary>
         public bool IsRunning { get { return (_Thread != null && _Thread.IsAlive); } }
 
+        
+        
+        public ImageStreamingServer()
+        //: this(Screen.Snapshots(600, 450, true))
+            : this(null)
+        { }
+        
+        
+        public ImageStreamingServer(System.Collections.Generic.IEnumerable<System.Drawing.Image> imagesSource)
+        {
+            _Clients = new System.Collections.Generic.List<System.Net.Sockets.Socket>();
+            _Thread = null;
+            
+            this.Interval = 50;
+
+            if (imagesSource == null)
+                this.ImagesSource = OrigScreen.Snapshots();
+            else
+                this.ImagesSource = imagesSource;
+        }
+        
+        
+        
 
         /// <summary>
         /// Starts the server to accepts any new connections on the specified port.
@@ -105,22 +115,24 @@ namespace rtaNetworking.Streaming
                     lock (_Clients)
                     {
 
-                        foreach (var s in _Clients)
+                        foreach (System.Net.Sockets.Socket s in _Clients)
                         {
                             try
                             {
                                 s.Close();
                             }
                             catch { }
-                        }
+                        } // Next s 
+                        
                         _Clients.Clear();
-
-                    }
+                    } // End Lock _Clients
 
                     _Thread = null;
-                }
-            }
-        }
+                } // End Finally
+                
+            } // End if (this.IsRunning)
+            
+        } // End Sub Stop 
 
 
         /// <summary>
@@ -149,9 +161,9 @@ namespace rtaNetworking.Streaming
             catch { }
 
             this.Stop();
-        }
-
-
+        } // End Sub ServerThread 
+        
+        
         /// <summary>
         /// Each client connection will be served by this thread.
         /// </summary>
@@ -161,30 +173,31 @@ namespace rtaNetworking.Streaming
             System.Net.Sockets.Socket socket = (System.Net.Sockets.Socket)client;
             System.Diagnostics.Debug.WriteLine(string.Format("New client from {0}", socket.RemoteEndPoint.ToString()));
 
-
             lock (_Clients)
+            {
                 _Clients.Add(socket);
-
+            }
+            
             try
             {
                 using (MjpegWriter wr = new MjpegWriter(new System.Net.Sockets.NetworkStream(socket, true)))
                 {
-
                     // Writes the response header to the client.
                     wr.WriteHeader();
-
+                    
                     // Streams the images from the source to the client.
-                    foreach (var imgStream in Screen.Streams(this.ImagesSource))
+                    foreach (System.IO.MemoryStream imgStream in OrigScreen.Streams(this.ImagesSource))
                     {
                         if (this.Interval > 0)
                             System.Threading.Thread.Sleep(this.Interval);
-
+                        
                         wr.Write(imgStream);
-                    }
-
-                }
+                    } // Next imgStream 
+                    
+                } // End Using wr 
             }
-            catch(System.Exception ex) {
+            catch(System.Exception ex) 
+            {
                 System.Console.WriteLine(ex.Message);
             }
             finally
@@ -192,213 +205,28 @@ namespace rtaNetworking.Streaming
                 lock (_Clients)
                     _Clients.Remove(socket);
             }
-        }
-
-
+        } // End Sub ClientThread 
+        
+        
         public void Dispose()
         {
             this.Stop();
         }
-
-
-    }
-
-
+        
+        
+    } // End Class ImageStreamingServer 
+    
+    
     static class SocketExtensions
     {
-
+        
         public static System.Collections.Generic.IEnumerable<System.Net.Sockets.Socket> IncommingConnectoins(this System.Net.Sockets.Socket server)
         {
             while (true)
                 yield return server.Accept();
         }
-
-    }
-
-
-    static class Screen
-    {
-
-
-        public static System.Collections.Generic.IEnumerable<System.Drawing.Image> Snapshots()
-        {
-            return Screen.Snapshots(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width, System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height, true);
-        }
-
-
-        [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
-        struct CURSORINFO
-        {
-            public System.Int32 cbSize;
-            public System.Int32 flags;
-            public System.IntPtr hCursor;
-            public POINTAPI ptScreenPos;
-        }
-
-        [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
-        struct POINTAPI
-        {
-            public int x;
-            public int y;
-        }
-
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        static extern bool GetCursorInfo(out CURSORINFO pci);
-
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        static extern bool DrawIcon(System.IntPtr hDC, int X, int Y, System.IntPtr hIcon);
-
-        const System.Int32 CURSOR_SHOWING = 0x00000001;
-
-        public static System.Drawing.Bitmap CaptureScreen(System.Windows.Forms.Screen thisScreen, bool CaptureMouse)
-        {
-            System.Drawing.Bitmap result = new System.Drawing.Bitmap(thisScreen.Bounds.Width
-                , System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height
-                , System.Drawing.Imaging.PixelFormat.Format24bppRgb);
-
-            try
-            {
-                using (System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(result))
-                {
-                    g.CopyFromScreen(0, 0, 0, 0, thisScreen.Bounds.Size, System.Drawing.CopyPixelOperation.SourceCopy);
-
-                    if (CaptureMouse)
-                    {
-                        CURSORINFO pci;
-                        pci.cbSize = System.Runtime.InteropServices.Marshal.SizeOf(typeof(CURSORINFO));
-
-                        if (GetCursorInfo(out pci))
-                        {
-                            if (pci.flags == CURSOR_SHOWING)
-                            {
-                                DrawIcon(g.GetHdc(), pci.ptScreenPos.x, pci.ptScreenPos.y, pci.hCursor);
-                                g.ReleaseHdc();
-                            }
-                        }
-                    }
-                }
-            }
-            catch
-            {
-                result = null;
-            }
-
-            return result;
-        } // End Function CaptureScreen 
-
-
-
-        /// <summary>
-        /// Returns a 
-        /// </summary>
-        /// <param name="delayTime"></param>
-        /// <returns></returns>
-        public static System.Collections.Generic.IEnumerable<System.Drawing.Image> Snapshots(int width, int height, bool showCursor)
-        {
-            // System.Windows.Forms.Screen thisScreen = System.Windows.Forms.Screen.AllScreens[1];
-            System.Windows.Forms.Screen thisScreen = System.Windows.Forms.Screen.PrimaryScreen;
-
-            System.Drawing.Size size = new System.Drawing.Size(System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width
-                , System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height);
-
-            System.Drawing.Bitmap srcImage = new System.Drawing.Bitmap(size.Width, size.Height);
-            System.Drawing.Graphics srcGraphics = System.Drawing.Graphics.FromImage(srcImage);
-
-            bool scaled = (width != size.Width || height != size.Height);
-
-            System.Drawing.Bitmap dstImage = srcImage;
-            System.Drawing.Graphics dstGraphics = srcGraphics;
-
-            if (scaled)
-            {
-                dstImage = new System.Drawing.Bitmap(width, height);
-                dstGraphics = System.Drawing.Graphics.FromImage(dstImage);
-            } // End if (scaled) 
-
-            System.Drawing.Rectangle src = new System.Drawing.Rectangle(0, 0, size.Width, size.Height);
-            System.Drawing.Rectangle dst = new System.Drawing.Rectangle(0, 0, width, height);
-            System.Drawing.Size curSize = new System.Drawing.Size(32, 32);
-
-            while (true)
-            {   
-                //srcGraphics.CopyFromScreen(0, 0, 0, 0, size);
-                srcGraphics.CopyFromScreen(
-                      thisScreen.WorkingArea.Left
-                    , thisScreen.WorkingArea.Top // Top is bottom...
-                    , 0, 0, size
-                );
-
-                
-                /*
-                // This results in the wrong cursor...
-                if (showCursor)
-                    // System.Windows.Forms.Cursors.Default.Draw(srcGraphics,
-                    System.Windows.Forms.Cursor.Current.Draw(srcGraphics,
-                        new System.Drawing.Rectangle(System.Windows.Forms.Cursor.Position, curSize)
-                );
-                */
-
-                
-                // https://stackoverflow.com/questions/6750056/how-to-capture-the-screen-and-mouse-pointer-using-windows-apis
-                if (showCursor)
-                {
-                    CURSORINFO pci;
-                    pci.cbSize = System.Runtime.InteropServices.Marshal.SizeOf(typeof(CURSORINFO));
-
-                    if (GetCursorInfo(out pci))
-                    {
-                        if (pci.flags == CURSOR_SHOWING)
-                        {
-
-                            // Check if cursor on the screen that is being captured...
-                            if (pci.ptScreenPos.x >= thisScreen.WorkingArea.Left && pci.ptScreenPos.x <= thisScreen.WorkingArea.Right)
-                            {
-                                DrawIcon(srcGraphics.GetHdc(), pci.ptScreenPos.x - thisScreen.WorkingArea.Left, pci.ptScreenPos.y, pci.hCursor);
-                                srcGraphics.ReleaseHdc();
-                            } // End if (pci.ptScreenPos.x >= thisScreen.Bounds.X && pci.ptScreenPos.x <= thisScreen.Bounds.X + thisScreen.Bounds.Width) 
-
-                        } // End if (pci.flags == CURSOR_SHOWING) 
-                    } // End if (GetCursorInfo(out pci)) 
-                } // End if (showCursor) 
-
-                
-
-                if (scaled)
-                    dstGraphics.DrawImage(srcImage, dst, src, System.Drawing.GraphicsUnit.Pixel);
-
-                yield return dstImage;
-
-            } // Whend 
-
-            srcGraphics.Dispose();
-            dstGraphics.Dispose();
-
-            srcImage.Dispose();
-            dstImage.Dispose();
-
-            yield break;
-        } // End Function Snapshots 
-
-
-        internal static System.Collections.Generic.IEnumerable<System.IO.MemoryStream> Streams(this System.Collections.Generic.IEnumerable<System.Drawing.Image> source)
-        {
-            System.IO.MemoryStream ms = new System.IO.MemoryStream();
-
-            foreach (var img in source)
-            {
-                ms.SetLength(0);
-                img.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
-                yield return ms;
-            }
-
-            ms.Close();
-            ms = null;
-
-            yield break;
-        } // End Function Streams 
-
-
-    }
-
-
-}
+        
+    } // End Class SocketExtensions 
+    
+    
+} // End Namespace rtaNetworking.Streaming 

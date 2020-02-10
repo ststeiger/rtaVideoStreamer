@@ -8,12 +8,12 @@ namespace Tools.Graphics
     {
         // http://www.eggheadcafe.com/tutorials/aspnet/064b41e4-60bc-4d35-9136-368603bcc27a/7zip-lzma-inmemory-com.aspx
 
-        protected static System.Drawing.Rectangle rectScreenBounds = GetScrBounds();
-        //protected System.Drawing.Rectangle rectScreenBounds = System.Windows.Forms.Screen.GetBounds(System.Drawing.Point.Empty);
-        protected static System.Drawing.Bitmap bmpScreenshot = new System.Drawing.Bitmap(1, 1);
+        private static System.Drawing.Rectangle rectScreenBounds = GetScrBounds();
+        //private static System.Drawing.Rectangle rectScreenBounds = System.Windows.Forms.Screen.GetBounds(System.Drawing.Point.Empty);
+        private static System.Drawing.Bitmap bmpScreenshot = new System.Drawing.Bitmap(1, 1);
 
 
-        protected static System.Drawing.Rectangle GetXorgScreen()
+        private static System.Drawing.Rectangle GetXorgScreen()
         {
             int screen_width = 0;
             int screen_height = 0;
@@ -42,11 +42,11 @@ namespace Tools.Graphics
             // Wouldn't be necessary if GetBounds on mono wasn't buggy.
             if (System.Environment.OSVersion.Platform == System.PlatformID.Unix)
                 return GetXorgScreen();
-
+            
             return System.Windows.Forms.Screen.GetBounds(System.Drawing.Point.Empty);
         } // End Function GetScrBounds
-
-
+        
+        
         // http://jalpesh.blogspot.com/2007/06/how-to-take-screenshot-in-c.html
         // Tools.Graphics.ScreenShot.GetScreenshot();
         public static System.Drawing.Bitmap GetScreenshot()
@@ -55,7 +55,9 @@ namespace Tools.Graphics
             if (this.pictureBox1.Image != null)
                 this.pictureBox1.Image.Dispose();
             */
-            bmpScreenshot.Dispose();
+            if(bmpScreenshot != null)
+                bmpScreenshot.Dispose();
+            
             bmpScreenshot = new System.Drawing.Bitmap(rectScreenBounds.Width, rectScreenBounds.Height);
 
             using (System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(bmpScreenshot))
@@ -95,7 +97,7 @@ namespace Tools.Graphics
             System.Drawing.Rectangle rectBounds = System.Windows.Forms.Screen.GetBounds(System.Drawing.Point.Empty);
             using (System.Drawing.Bitmap bmpScreenshotBitmap = new System.Drawing.Bitmap(rectBounds.Width, rectBounds.Height))
             {
-
+                
                 using (System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(bmpScreenshotBitmap))
                 {
                     g.CopyFromScreen(System.Drawing.Point.Empty, System.Drawing.Point.Empty, rectBounds.Size);

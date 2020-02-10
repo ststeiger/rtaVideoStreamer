@@ -10,25 +10,41 @@ namespace rtaStreamingServer
 
         static void Main(string[] args)
         {
-            RunServer();
+            // RunServer();
 
             // https://www.cyotek.com/blog/capturing-screenshots-using-csharp-and-p-invoke
 
-            
 
+            TestScreenshot();
+            
+            
             System.Console.WriteLine(" --- Press any key to continue --- ");
             System.Console.ReadKey();
 
-            _Server.Stop();
+            StopServer();
         }
-
-
 
         static void TestScreenshot()
         {
+            if(System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
+                TestLinuxScreenshot();
+            if(System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+                TestWindowsScreenshot();
+        }
+
+
+        static void TestLinuxScreenshot()
+        {
+            System.Drawing.Bitmap bmp = Tools.Graphics.ScreenShot.GetScreenshot();
+            System.Console.WriteLine(bmp);
+            bmp.Save(@" Screenshot.png", System.Drawing.Imaging.ImageFormat.Png);
+        }
+
+        static void TestWindowsScreenshot()
+        {
             System.Drawing.Bitmap bmp = CaptureEntireDesktop.CaptureDesktop();
             System.Console.WriteLine(bmp);
-            bmp.Save(@"d:\Screenshot.png", System.Drawing.Imaging.ImageFormat.Png);
+            bmp.Save(@"Screenshot.png", System.Drawing.Imaging.ImageFormat.Png);
         }
 
 
@@ -52,6 +68,13 @@ namespace rtaStreamingServer
             tmr.Enabled = true;
 
             BrowserWrapper.OpenBrowser(link);
+        }
+
+
+        static void StopServer()
+        {
+            if (_Server != null)
+                _Server.Stop();
         }
 
 

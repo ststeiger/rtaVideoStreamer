@@ -242,7 +242,8 @@ namespace System.Windows.Forms
                 return bounds;
             }
         }
-
+        
+        
         private class MonitorEnumCallback
         {
             public Collections.ArrayList screens = new Collections.ArrayList();
