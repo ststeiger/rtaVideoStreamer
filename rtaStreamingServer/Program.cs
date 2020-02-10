@@ -19,17 +19,61 @@ namespace rtaStreamingServer
             
             
             System.Console.WriteLine(" --- Press any key to continue --- ");
-            System.Console.ReadKey();
+            // System.Console.ReadKey();
+            WaitForKeyPress();
 
             StopServer();
         }
 
+
+        static void WaitForKeyPress()
+        {
+
+            while (!System.Console.KeyAvailable)
+            {
+                System.Threading.Thread.Sleep(100);
+            } // Whend 
+
+            System.Console.ReadKey(); // Flush
+        }
+
+
+        static void WaitForEnter()
+        {
+            System.ConsoleKey cc = default(System.ConsoleKey);
+
+            do
+            {
+                // THIS IS MADNESS!!!   Madness huh?   THIS IS SPARTA!!!!!!! 
+                while (!System.Console.KeyAvailable)
+                {
+                    System.Threading.Thread.Sleep(100);
+                }
+
+                cc = System.Console.ReadKey().Key;
+
+                if (cc == System.ConsoleKey.C)
+                    System.Console.Clear();
+
+            } while (cc != System.ConsoleKey.Enter);
+        }
+
+
         static void TestScreenshot()
         {
-            if(System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
+            {
                 TestLinuxScreenshot();
-            if(System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+                return;
+            }
+
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+            {
                 TestWindowsScreenshot();
+                return;
+            }
+
+            throw new System.NotImplementedException("Screenshot functionality not implemented for your platform...");
         }
 
 
