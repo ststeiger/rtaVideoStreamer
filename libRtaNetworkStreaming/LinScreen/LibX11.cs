@@ -39,6 +39,13 @@ namespace rtaNetworking.Linux
         [DllImport("libX11", EntryPoint = "XDefaultDepth")]
         internal extern static uint XDefaultDepth(IntPtr display, int screen);
 
+        [System.Runtime.InteropServices.DllImport("libX11", EntryPoint = "XDisplayHeight")]
+        internal extern static int DisplayHeight(System.IntPtr display, int screen_number);
+
+        [System.Runtime.InteropServices.DllImport("libX11", EntryPoint = "XDisplayWidth")]
+        internal extern static int DisplayWidth(System.IntPtr display, int screen_number);
+
+
         // https://tronche.com/gui/x/xlib/graphics/XGetImage.html
         [DllImport("libX11", EntryPoint = "XGetImage")]
         internal extern static IntPtr XGetImage(IntPtr display, IntPtr drawable, int src_x, int src_y, uint width, uint height, System.UIntPtr pane, int format);

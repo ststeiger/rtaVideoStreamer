@@ -32,9 +32,36 @@ namespace rtaNetworking.Linux
         public const int ZPixmap = 2;   // depth == drawable depth 
 
 
-        private static System.Drawing.Size screenSize = rtaStreamingServer.LinuxScreenShot.GetXorgScreenSize();
-        
-        
+        private static System.Drawing.Size screenSize = GetXorgScreenSize();
+
+
+        public static System.Drawing.Size GetXorgScreenSize()
+        {
+            int screen_width = 0;
+            int screen_height = 0;
+            
+            System.IntPtr display = LibX11Functions.XOpenDisplay(System.IntPtr.Zero);
+
+            if (display == System.IntPtr.Zero)
+            {
+                System.Console.WriteLine("Error: Failed on XOpenDisplay.\n");
+            }
+            else
+            {
+                int defaultScreen = LibX11Functions.XDefaultScreen(display);
+
+                screen_width = LibX11Functions.DisplayWidth(display, defaultScreen);
+                screen_height = LibX11Functions.DisplayHeight(display, defaultScreen);
+
+                LibX11Functions.XCloseDisplay(display);
+                System.Console.WriteLine("Width: " + screen_width.ToString() + " Height: " + screen_height.ToString());
+            } // End Else (display == System.IntPtr.Zero)
+
+            return new System.Drawing.Size(screen_width, screen_height);
+        } // End Function GetXorgScreen
+
+
+
         public static System.Drawing.Bitmap CopyFromScreenX11()
         {
             // System.Drawing.Size screenSize = rtaStreamingServer.LinuxScreenShot.GetXorgScreenSize();
