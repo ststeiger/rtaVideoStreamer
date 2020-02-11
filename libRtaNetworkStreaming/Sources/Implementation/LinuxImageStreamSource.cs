@@ -24,7 +24,8 @@ namespace rtaNetworking
         {
             while (true)
             {
-                System.Drawing.Bitmap dstImage = rtaStreamingServer.LinuxScreenShot.GetScreenshot();
+                // System.Drawing.Bitmap dstImage = rtaStreamingServer.LinuxScreenShot.GetScreenshot();
+                System.Drawing.Bitmap dstImage = rtaNetworking.Linux.LinScreen.CopyFromScreenX11();
                 yield return dstImage;
             }
 

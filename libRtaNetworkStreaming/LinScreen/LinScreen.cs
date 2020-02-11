@@ -1,4 +1,4 @@
-
+ 
 namespace rtaNetworking.Linux
 {
 
@@ -12,7 +12,7 @@ namespace rtaNetworking.Linux
     public class LinScreen
     {
         
-        public readonly System.IntPtr VisualIDMask = new System.IntPtr(0x01);
+        public static readonly System.IntPtr VisualIDMask = new System.IntPtr(0x01);
         
         public const int VisualNoMask = 0x0;
         // public const int VisualIDMask = 0x1;
@@ -33,14 +33,15 @@ namespace rtaNetworking.Linux
 
 
         private static System.Drawing.Size screenSize = rtaStreamingServer.LinuxScreenShot.GetXorgScreenSize();
-
-
+        
+        
         public static System.Drawing.Bitmap CopyFromScreenX11()
         {
+            // System.Drawing.Size screenSize = rtaStreamingServer.LinuxScreenShot.GetXorgScreenSize();
             return CopyFromScreenX11(0, 0, screenSize, System.Drawing.CopyPixelOperation.SourceCopy);
         }
-
-
+        
+        
         public static System.Drawing.Bitmap CopyFromScreenX11(int sourceX, int sourceY, 
             System.Drawing.Size blockRegionSize
             , System.Drawing.CopyPixelOperation copyPixelOperation)
@@ -107,16 +108,17 @@ namespace rtaNetworking.Linux
                     bmp.SetPixel(x, y, System.Drawing.Color.FromArgb(255, red, green, blue));
                 }
             }
-
+            
             // DrawImage(bmp, destinationX, destinationY);
             // bmp.Dispose();
             LibX11Functions.XDestroyImage(image);
             LibX11Functions.XFree(vPtr);
-
+            
             return bmp;
         }
-
+        
+        
     }
-
-
+    
+    
 }

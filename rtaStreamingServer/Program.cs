@@ -43,14 +43,25 @@ namespace rtaStreamingServer
                 pixBuf.Save("screenshot0.jpeg", "jpeg");
             }
         }
-        
+
+
+        public static void test2()
+        {
+            for (int i = 0; i < 100; ++i)
+            {
+                using (System.Drawing.Bitmap bmp = rtaNetworking.Linux.LinScreen.CopyFromScreenX11())
+                {
+                    bmp.Save("screenshot" + i.ToString() + ".bmp");    
+                }
+                
+            }
+        }
+
 
         // dotnet publish -f netcoreapp2.1 -c Release -r linux-x64
         static void Main(string[] args)
         {
-            System.Drawing.Bitmap bmp = rtaNetworking.Linux.LinScreen.CopyFromScreenX11();
-            bmp.Save("screenshot.bmp");
-
+            // https://www.x.org/releases/X11R7.5/doc/man/man3/XInitThreads.3.html
             // TestScreenshot();
             // System.Drawing.Bitmap dstImage = rtaStreamingServer.LinuxScreenShot.GetScreenshot();
 
