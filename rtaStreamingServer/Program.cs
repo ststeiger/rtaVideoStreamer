@@ -48,9 +48,12 @@ namespace rtaStreamingServer
         // dotnet publish -f netcoreapp2.1 -c Release -r linux-x64
         static void Main(string[] args)
         {
+            System.Drawing.Bitmap bmp = rtaNetworking.Linux.LinScreen.CopyFromScreenX11();
+            bmp.Save("screenshot.bmp");
+
             // TestScreenshot();
             // System.Drawing.Bitmap dstImage = rtaStreamingServer.LinuxScreenShot.GetScreenshot();
-             
+
             RunServer();
 
             // https://www.cyotek.com/blog/capturing-screenshots-using-csharp-and-p-invoke

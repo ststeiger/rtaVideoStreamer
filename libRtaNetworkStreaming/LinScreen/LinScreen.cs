@@ -1,7 +1,8 @@
-using System;
 
-namespace rtaNetworking.Streaming.LinScreen
+namespace rtaNetworking.Linux
 {
+
+
     public class Gdip
     {
         public static System.IntPtr Display;
@@ -28,10 +29,19 @@ namespace rtaNetworking.Streaming.LinScreen
 
         public const int XYBitmap = 0;	// depth 1, XYFormat 
         public const int XYPixmap = 1;	// depth == drawable depth 
-        public const int ZPixmap = 2;	// depth == drawable depth 
-        
-        
-        private void CopyFromScreenX11(int sourceX, int sourceY, int destinationX, int destinationY,
+        public const int ZPixmap = 2;   // depth == drawable depth 
+
+
+        private static System.Drawing.Size screenSize = rtaStreamingServer.LinuxScreenShot.GetXorgScreenSize();
+
+
+        public static System.Drawing.Bitmap CopyFromScreenX11()
+        {
+            return CopyFromScreenX11(0, 0, screenSize, System.Drawing.CopyPixelOperation.SourceCopy);
+        }
+
+
+        public static System.Drawing.Bitmap CopyFromScreenX11(int sourceX, int sourceY, 
             System.Drawing.Size blockRegionSize
             , System.Drawing.CopyPixelOperation copyPixelOperation)
         {
@@ -98,36 +108,15 @@ namespace rtaNetworking.Streaming.LinScreen
                 }
             }
 
-            DrawImage(bmp, destinationX, destinationY);
-            bmp.Dispose();
+            // DrawImage(bmp, destinationX, destinationY);
+            // bmp.Dispose();
             LibX11Functions.XDestroyImage(image);
             LibX11Functions.XFree(vPtr);
+
+            return bmp;
         }
 
-        internal const string LibraryName = "libgdiplus";
-        [System.Runtime.InteropServices.DllImport(LibraryName, ExactSpelling = true)]
-        internal static extern int GdipDrawImageI(System.IntPtr graphics, System.IntPtr image, int x, int y);
-
-        // Handle to native GDI+ graphics object. This object is created on demand.
-        internal System.IntPtr NativeGraphics { get; private set; }
-
-        // public abstract partial class Image { internal IntPtr nativeImage; };
-
-        
-        public void DrawImage(System.Drawing.Image image, int x, int y)
-        {
-            if (image == null)
-                throw new System.ArgumentNullException(nameof(image));
-            // int status = GdipDrawImageI(NativeGraphics, image.nativeImage, x, y);
-            // CheckStatus(status);
-        }
-        
-        internal const int Ok = 0;
-        internal static void CheckStatus(int status)
-        {
-            if (status != Ok)
-                throw new System.Exception("StatusException: Status " + status.ToString());
-        }
-        
     }
+
+
 }

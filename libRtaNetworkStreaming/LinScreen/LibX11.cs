@@ -1,4 +1,4 @@
-namespace rtaNetworking.Streaming.LinScreen
+namespace rtaNetworking.Linux
 {
     using System;
     using System.Runtime.InteropServices;
