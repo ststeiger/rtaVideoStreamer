@@ -55,6 +55,11 @@ namespace Xorg
         // nm -D $(locate "libX11.so" | grep ".so$") | grep "DisplayHeight"
 
 
+        // nm -D /usr/lib/x86_64-linux-gnu/libX11.so.6  | grep "XInitThreads" 000000000002c100 T XInitThreads
+
+        [System.Runtime.InteropServices.DllImport(m_strSharedObjectName, EntryPoint = "XInitThreads")]
+        public extern static int XInitThreads();
+
         [System.Runtime.InteropServices.DllImport(m_strSharedObjectName, EntryPoint = "XOpenDisplay")]
         internal extern static System.IntPtr XOpenDisplay(System.IntPtr display);
 

@@ -57,18 +57,16 @@ namespace rtaStreamingServer
             }
         }
 
-        [System.Runtime.InteropServices.DllImport("libX11", EntryPoint = "XInitThreads")]
-        public extern static int XInitThreads();
 
-        // Status XInitThreads(void);
-        
         // dotnet publish -f netcoreapp2.1 -c Release -r linux-x64
+        // dotnet publish -f netcoreapp3.1 -c Release -r linux-x64
         static void Main(string[] args)
         {
-            XInitThreads();
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
+            {
+                Xorg.API.XInitThreads();
+            }
             
-            // nm -D /usr/lib/x86_64-linux-gnu/libX11.so.6  | grep "XInitThreads" 000000000002c100 T XInitThreads
-
             // https://www.x.org/releases/X11R7.5/doc/man/man3/XInitThreads.3.html
             // TestScreenshot();
             // System.Drawing.Bitmap dstImage = rtaStreamingServer.LinuxScreenShot.GetScreenshot();
