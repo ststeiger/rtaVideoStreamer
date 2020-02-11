@@ -33,7 +33,8 @@ namespace rtaNetworking
 
         public static System.Collections.Generic.IEnumerable<System.Drawing.Image> Snapshots()
         {
-            return Snapshots(rtaNetworking.Windows.Screen.PrimaryScreen.Bounds.Width, rtaNetworking.Windows.Screen.PrimaryScreen.Bounds.Height, true);
+            // return Snapshots(rtaNetworking.Windows.Screen.PrimaryScreen.Bounds.Width, rtaNetworking.Windows.Screen.PrimaryScreen.Bounds.Height, true);
+            return Snapshots(-1, -1, true);
         }
 
     }

@@ -1,4 +1,6 @@
 ﻿
+using System.Threading;
+
 namespace rtaStreamingServer
 {
 
@@ -55,14 +57,20 @@ namespace rtaStreamingServer
             if (this.pictureBox1.Image != null)
                 this.pictureBox1.Image.Dispose();
             */
-            if(bmpScreenshot != null)
-                bmpScreenshot.Dispose();
+            // if(bmpScreenshot != null) bmpScreenshot.Dispose();
             
             bmpScreenshot = new System.Drawing.Bitmap(rectScreenBounds.Width, rectScreenBounds.Height);
-
+            
             using (System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(bmpScreenshot))
             {
-                g.CopyFromScreen(System.Drawing.Point.Empty, System.Drawing.Point.Empty, rectScreenBounds.Size);
+                try
+                {
+                    g.CopyFromScreen(System.Drawing.Point.Empty, System.Drawing.Point.Empty, rectScreenBounds.Size);
+                }
+                catch (System.Exception ex)
+                {
+                }
+                
             } // End Using g
 
             return bmpScreenshot;
