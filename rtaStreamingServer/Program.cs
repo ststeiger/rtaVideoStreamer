@@ -14,8 +14,9 @@ namespace rtaStreamingServer
 
     class Program
     {
-
-        public static void testme()
+        
+        
+        public static void TestGDK()
         {
             // https://github.com/GtkSharp/GtkSharp
             Gdk.Window window = Gdk.Global.DefaultRootWindow;
@@ -41,23 +42,38 @@ namespace rtaStreamingServer
                 // pixBuf.GetFromDrawable(window, Gdk.Colormap.System, 0, 0, 0, 0, window.Screen.Width, window.Screen.Height);          
                 pixBuf.ScaleSimple(400, 300, Gdk.InterpType.Bilinear);
                 pixBuf.Save("screenshot0.jpeg", "jpeg");
-            }
-        }
-
-
-        public static void test2()
+            } // End if (window!=null)
+            
+        } // End Sub TestGDK()
+        
+        
+        public static void PerformanceTest()
         {
             for (int i = 0; i < 100; ++i)
             {
                 using (System.Drawing.Bitmap bmp = rtaNetworking.Linux.LinScreen.CopyFromScreenX11())
                 {
-                    bmp.Save("screenshot" + i.ToString() + ".bmp");    
-                }
+                    System.Console.WriteLine(System.DateTime.Now.ToString("HH:mm:ss.fff"));
+                    // bmp.Save("screenshot" + i.ToString() + ".bmp");    
+                } // End Using bmp 
                 
-            }
-        }
-
-
+            } // Next i
+            
+        } // End Sub PerformanceTest 
+        
+        
+        public static void TestXGetImage()
+        {
+            // libRtaNetworkStreaming.XImage* foo = libRtaNetworkStreaming.XLib.XGetImage();
+            
+            
+            
+            // System.IntPtr pImage;
+            // libRtaNetworkStreaming.XImage block1 = (libRtaNetworkStreaming.XImage)System.Runtime.InteropServices.Marshal.PtrToStructure(pImage, typeof(libRtaNetworkStreaming.XImage));
+        } // End Sub TestXGetImage
+        
+        
+        
         // dotnet publish -f netcoreapp2.1 -c Release -r linux-x64
         // dotnet publish -f netcoreapp3.1 -c Release -r linux-x64
         static void Main(string[] args)
@@ -65,7 +81,9 @@ namespace rtaStreamingServer
             if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
             {
                 Xorg.API.XInitThreads();
-            }
+            } // End if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
+            
+            // PerformanceTest();
             
             // https://www.x.org/releases/X11R7.5/doc/man/man3/XInitThreads.3.html
             // TestScreenshot();
@@ -154,14 +172,15 @@ namespace rtaStreamingServer
 
         private static rtaNetworking.Streaming.ImageStreamingServer _Server;
         private static System.DateTime time = System.DateTime.MinValue;
-
+        
+        
         static void RunServer()
         {
             string link = string.Format("http://{0}:8080", System.Environment.MachineName);
 
             _Server = new rtaNetworking.Streaming.ImageStreamingServer();
-
-
+            _Server.Interval = 35;
+             
             _Server.Start(8080);
 
 

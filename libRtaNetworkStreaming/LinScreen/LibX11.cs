@@ -19,6 +19,14 @@ namespace rtaNetworking.Linux
         internal int colormap_size;
         internal int bits_per_rgb;
     }
+
+
+    internal static class LibXfixes
+    {
+        
+        [DllImport("libXfixes", EntryPoint = "XFixesGetCursorImage")]
+        internal extern static IntPtr XFixesGetCursorImage(IntPtr display);    
+    }
     
     
     internal static class LibX11Functions
