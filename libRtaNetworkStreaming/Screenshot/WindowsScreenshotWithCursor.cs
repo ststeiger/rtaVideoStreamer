@@ -69,6 +69,90 @@ namespace rtaNetworking.Windows
         } // End Function CaptureScreen 
 
 
+        public static System.Drawing.Bitmap CreateSingleScreenshot()
+        {
+            return CreateSingleScreenshot(rtaNetworking.Windows.Screen.PrimaryScreen, true);
+        }
+
+
+        public static System.Drawing.Bitmap CreateSingleScreenshot(rtaNetworking.Windows.Screen screen)
+        {
+            return CreateSingleScreenshot(screen, true);
+        }
+
+        public static System.Drawing.Bitmap CreateSingleScreenshot(rtaNetworking.Windows.Screen thisScreen, bool showCursor)
+        {
+            System.Drawing.Rectangle bounds = thisScreen.Bounds;
+            int width = bounds.Width;
+            int height = bounds.Height;
+
+
+            System.Drawing.Size size = new System.Drawing.Size(width, height);
+
+            System.Drawing.Bitmap srcImage = new System.Drawing.Bitmap(size.Width, size.Height);
+            System.Drawing.Graphics srcGraphics = System.Drawing.Graphics.FromImage(srcImage);
+
+            bool scaled = (width != size.Width || height != size.Height);
+
+            System.Drawing.Bitmap dstImage = srcImage;
+            System.Drawing.Graphics dstGraphics = srcGraphics;
+
+            if (scaled)
+            {
+                dstImage = new System.Drawing.Bitmap(width, height);
+                dstGraphics = System.Drawing.Graphics.FromImage(dstImage);
+            } // End if (scaled) 
+
+            System.Drawing.Rectangle src = new System.Drawing.Rectangle(0, 0, size.Width, size.Height);
+            System.Drawing.Rectangle dst = new System.Drawing.Rectangle(0, 0, width, height);
+            System.Drawing.Size curSize = new System.Drawing.Size(32, 32);
+
+
+            //srcGraphics.CopyFromScreen(0, 0, 0, 0, size);
+            srcGraphics.CopyFromScreen(
+                  thisScreen.WorkingArea.Left
+                , thisScreen.WorkingArea.Top // Top is bottom...
+                , 0, 0, size
+            );
+
+
+            /*
+            // This results in the wrong cursor...
+            if (showCursor)
+                // System.Windows.Forms.Cursors.Default.Draw(srcGraphics,
+                System.Windows.Forms.Cursor.Current.Draw(srcGraphics,
+                    new System.Drawing.Rectangle(System.Windows.Forms.Cursor.Position, curSize)
+            );
+            */
+
+
+            // https://stackoverflow.com/questions/6750056/how-to-capture-the-screen-and-mouse-pointer-using-windows-apis
+            if (showCursor)
+            {
+                CURSORINFO pci;
+                pci.cbSize = System.Runtime.InteropServices.Marshal.SizeOf(typeof(CURSORINFO));
+
+                if (GetCursorInfo(out pci))
+                {
+                    if (pci.flags == CURSOR_SHOWING)
+                    {
+
+                        // Check if cursor on the screen that is being captured...
+                        if (pci.ptScreenPos.x >= thisScreen.WorkingArea.Left && pci.ptScreenPos.x <= thisScreen.WorkingArea.Right)
+                        {
+                            DrawIcon(srcGraphics.GetHdc(), pci.ptScreenPos.x - thisScreen.WorkingArea.Left, pci.ptScreenPos.y, pci.hCursor);
+                            srcGraphics.ReleaseHdc();
+                        } // End if (pci.ptScreenPos.x >= thisScreen.Bounds.X && pci.ptScreenPos.x <= thisScreen.Bounds.X + thisScreen.Bounds.Width) 
+
+                    } // End if (pci.flags == CURSOR_SHOWING) 
+                } // End if (GetCursorInfo(out pci)) 
+            } // End if (showCursor) 
+
+            if (scaled)
+                dstGraphics.DrawImage(srcImage, dst, src, System.Drawing.GraphicsUnit.Pixel);
+
+            return dstImage;
+        }
 
 
         /// <summary>
