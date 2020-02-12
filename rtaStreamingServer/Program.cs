@@ -14,17 +14,17 @@ namespace rtaStreamingServer
 
     class Program
     {
-        
-        
+
+
         public static void TestGDK()
         {
             // https://github.com/GtkSharp/GtkSharp
             Gdk.Window window = Gdk.Global.DefaultRootWindow;
-            if (window!=null)
-            {           
-                Gdk.Pixbuf pixBuf = new Gdk.Pixbuf(Gdk.Colorspace.Rgb, false, 8, 
-                    window.Screen.Width, window.Screen.Height);      
-                
+            if (window != null)
+            {
+                Gdk.Pixbuf pixBuf = new Gdk.Pixbuf(Gdk.Colorspace.Rgb, false, 8,
+                    window.Screen.Width, window.Screen.Height);
+
                 // Gdk.CursorType.Arrow
                 // Gdk.Display.Default.GetPointer();
                 // Gdk.Cursor.GetObject().
@@ -33,20 +33,20 @@ namespace rtaStreamingServer
                 // Gdk.Display.Default.NMonitors
                 // Gdk.Display.Default.GetMonitorAtPoint()
                 // Gdk.Display.Default.GetPointer();
-                
-                
+
+
                 // pixBuf.dr
                 // pixBuf.GetPixelsWithLength()
                 // Gdk.Pixbuf buf;
-                
+
                 // pixBuf.GetFromDrawable(window, Gdk.Colormap.System, 0, 0, 0, 0, window.Screen.Width, window.Screen.Height);          
                 pixBuf.ScaleSimple(400, 300, Gdk.InterpType.Bilinear);
                 pixBuf.Save("screenshot0.jpeg", "jpeg");
             } // End if (window!=null)
-            
+
         } // End Sub TestGDK()
-        
-        
+
+
         public static void PerformanceTest()
         {
             if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
@@ -73,27 +73,27 @@ namespace rtaStreamingServer
                 {
                     System.Diagnostics.Stopwatch stopWatch = new System.Diagnostics.Stopwatch();
                     stopWatch.Start();
-                    
+
                     using (System.Drawing.Bitmap bmp = rtaNetworking.Windows.WindowsScreenshotWithCursor.CreateSingleScreenshot())
                     {
                         // System.Console.WriteLine(System.DateTime.Now.ToString("HH:mm:ss.fff"));
                         // bmp.Save("screenshot" + i.ToString() + ".bmp");    
                     } // End Using bmp 
-                    
+
                     stopWatch.Stop();
                     System.Console.WriteLine(stopWatch.ElapsedMilliseconds); // Mean value 37ms
                 } // Next i
             } // End if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux)) 
 
         } // End Sub PerformanceTest 
-        
-        
+
+
         public static void TestXGetImage()
         {
             // libRtaNetworkStreaming.XImage* foo = libRtaNetworkStreaming.XLib.XGetImage();
-            
-            
-            
+
+
+
             // System.IntPtr pImage;
             // libRtaNetworkStreaming.XImage block1 = (libRtaNetworkStreaming.XImage)System.Runtime.InteropServices.Marshal.PtrToStructure(pImage, typeof(libRtaNetworkStreaming.XImage));
         } // End Sub TestXGetImage
@@ -118,7 +118,7 @@ namespace rtaStreamingServer
             private static byte[] PointerToManagedArray(System.IntPtr pnt, int size)
             {
                 byte[] managedArray = new byte[size];
-                
+
                 System.Runtime.InteropServices.Marshal.Copy(pnt, managedArray, 0, size);
                 return managedArray;
             }
@@ -199,6 +199,43 @@ namespace rtaStreamingServer
 
             return bitmapBytes;
         } // End Function ImageBitmap 
+
+        // https://www.manpagez.com/man/3/X11::Protocol::Ext::XFIXES/
+        // https://github.com/D-Programming-Deimos/libX11/blob/master/c/X11/extensions/Xfixes.h
+
+        // https://www.programiz.com/c-programming/examples/sizeof-operator-example
+        /*
+         #include<stdio.h>
+int main() {
+    int intType;
+    float floatType;
+    double doubleType;
+    char charType;
+    // sizeof evaluates the size of a variable
+    printf("Size of int: %ld bytes\n", sizeof(intType));
+    printf("Size of float: %ld bytes\n", sizeof(floatType));
+    printf("Size of double: %ld bytes\n", sizeof(doubleType));
+    printf("Size of char: %ld byte\n", sizeof(charType));
+    
+    return 0;
+}
+             */
+
+
+        // https://www.displayfusion.com/Discussions/View/converting-c-data-types-to-c/?ID=38db6001-45e5-41a3-ab39-8004450204b3
+        struct XFixesCursorImage
+        {
+            public short x, y;
+            public System.UInt16 width, height; // unsigned short int	
+            public System.UInt16 xhot, yhot; // unsigned short int	
+            public System.UIntPtr cursor_serial; // unsigned long
+            public System.IntPtr pixels; // unsigned long*
+#if XFIXES_MAJOR >= 2
+    public Atom            atom;           // Version >= 2 only
+    public const char      *name;          // Version >= 2 only
+#endif
+        }
+
 
 
         // https://www.geeksforgeeks.org/reverse-an-array-in-groups-of-given-size/
@@ -368,7 +405,7 @@ int main()
 
             im.Save(@"C:\Users\musa\Documents\Hobby\image21.bmp");
         }
-        
+
         // dotnet publish -f netcoreapp2.1 -c Release -r linux-x64
         // dotnet publish -f netcoreapp3.1 -c Release -r linux-x64
         static void Main(string[] args)
@@ -377,7 +414,7 @@ int main()
             {
                 Xorg.API.XInitThreads();
             } // End if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
-            
+
             PerformanceTest();
 
             // https://www.x.org/releases/X11R7.5/doc/man/man3/XInitThreads.3.html
@@ -467,15 +504,15 @@ int main()
 
         private static rtaNetworking.Streaming.ImageStreamingServer _Server;
         private static System.DateTime time = System.DateTime.MinValue;
-        
-        
+
+
         static void RunServer()
         {
             string link = string.Format("http://{0}:8080", System.Environment.MachineName);
 
             _Server = new rtaNetworking.Streaming.ImageStreamingServer();
             _Server.Interval = 35;
-             
+
             _Server.Start(8080);
 
 
