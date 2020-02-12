@@ -123,6 +123,7 @@ namespace rtaNetworking.Linux
                             break;
                         case 24:
                         case 32:
+                            // int a = (int)((pixel ) >> 24) & 0xff;
                             red = (int) ((pixel & red_mask) >> 16) & 0xff;
                             green = (int) (((pixel & green_mask) >> 8)) & 0xff;
                             blue = (int) ((pixel & blue_mask)) & 0xff;
