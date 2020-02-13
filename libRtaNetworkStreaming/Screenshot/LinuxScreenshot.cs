@@ -17,7 +17,7 @@ namespace rtaStreamingServer
         {
             int screen_width = 0;
             int screen_height = 0;
-
+            
             System.IntPtr display = Xorg.API.XOpenDisplay(System.IntPtr.Zero);
 
             if (display == System.IntPtr.Zero)

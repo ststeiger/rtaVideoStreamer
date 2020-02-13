@@ -223,20 +223,7 @@ int main() {
 
 
         // https://www.displayfusion.com/Discussions/View/converting-c-data-types-to-c/?ID=38db6001-45e5-41a3-ab39-8004450204b3
-        struct XFixesCursorImage
-        {
-            public short x, y;
-            public System.UInt16 width, height; // unsigned short int	
-            public System.UInt16 xhot, yhot; // unsigned short int	
-            public System.UIntPtr cursor_serial; // unsigned long
-            public System.IntPtr pixels; // unsigned long*
-#if XFIXES_MAJOR >= 2
-    public Atom            atom;           // Version >= 2 only
-    public const char      *name;          // Version >= 2 only
-#endif
-        }
-
-
+        
 
         // https://www.geeksforgeeks.org/reverse-an-array-in-groups-of-given-size/
         // Given an array, reverse every sub-array formed by consecutive k elements.
@@ -268,47 +255,6 @@ int main() {
         } // End Sub ReverseArrayInGroupsOfK 
 
         /*
-
-// https://www.geeksforgeeks.org/c-program-swap-two-numbers/
-void swap(int *xp, int *yp) 
-{ 
-    int temp = *xp; 
-    *xp = *yp; 
-    *yp = temp; 
-} 
-
-int main() 
-{ 
-    int x, y; 
-    printf("Enter Value of x "); 
-    scanf("%d", &x); 
-    printf("\nEnter Value of y "); 
-    scanf("%d", &y); 
-    swap(&x, &y); 
-    printf("\nAfter Swapping: x = %d, y = %d", x, y); 
-    return 0; 
-} 
-
-// or swap like this:
-// x and y, 
-void swap(int &x, int &y) 
-{ 
-    int temp = x; 
-    x = y; 
-    y = temp; 
-} 
-  
-int main() 
-{ 
-    int x, y; 
-    printf("Enter Value of x "); 
-    scanf("%d", &x); 
-    printf("\nEnter Value of y "); 
-    scanf("%d", &y); 
-    swap(x, y); 
-    printf("\nAfter Swapping: x = %d, y = %d", x, y); 
-    return 0; 
-} 
 
 
         #include <iostream> 
@@ -380,7 +326,7 @@ int main()
             int bitsPerPixel = ((int)format & 0xff00) >> 8;
             int bytesPerPixel = (bitsPerPixel + 7) / 8;
             int stride = 4 * ((width * bytesPerPixel + 3) / 4);
-
+            
             System.Drawing.Bitmap bmp = new System.Drawing.Bitmap(width, height, stride, System.Drawing.Imaging.PixelFormat.Format24bppRgb, pixels);
         }
 

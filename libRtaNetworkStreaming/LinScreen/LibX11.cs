@@ -53,7 +53,12 @@ namespace rtaNetworking.Linux
         [System.Runtime.InteropServices.DllImport("libX11", EntryPoint = "XDisplayWidth")]
         internal extern static int DisplayWidth(System.IntPtr display, int screen_number);
 
-
+        
+        [System.Runtime.InteropServices.DllImport("libXfixes", EntryPoint = "XFixesGetCursorImage")]
+        internal extern static System.IntPtr XFixesGetCursorImage(System.IntPtr display);
+        // XFixesCursorImage * XFixesGetCursorImage (Display *dpy);
+        
+        
         // https://tronche.com/gui/x/xlib/graphics/XGetImage.html
         [DllImport("libX11", EntryPoint = "XGetImage")]
         internal extern static IntPtr XGetImage(IntPtr display, IntPtr drawable, int src_x, int src_y, uint width, uint height, System.UIntPtr pane, int format);
