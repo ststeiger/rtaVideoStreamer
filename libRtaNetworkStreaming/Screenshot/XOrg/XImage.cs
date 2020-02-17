@@ -53,8 +53,67 @@ namespace libRtaNetworkStreaming
         public int readOnly;	/* Bool - how the server should attach it */ 
     } 
 
+    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential,Pack=1)]
+    unsafe struct User{
+        int id;
+        fixed char name[12];
+        private char* lol;
+    }
+
+    
+    public unsafe struct XExtData {
+        public int number;		/* number returned by XRegisterExtension */
+        public XExtData *next;	/* next item on list of data for structure */
+        public System.IntPtr free_private;// int (*free_private)(	/* called to free private storage */
+        public XExtData *extension;
+        public char* private_data;	/* data private to this extension. */ // typedef char *XPointer;
+    } ;
+
+    public unsafe struct Visual
+    {
+        public XExtData* ext_data; /* hook for extension to hang data */
+        public System.UIntPtr visualid; /* visual id of this visual */ // typedef unsigned long VisualID;
+        public int c_class; /* C++ class of screen (monochrome, etc.) */
+        public System.UIntPtr red_mask, green_mask, blue_mask; /* mask values */ // unsigned long 
+        public int bits_per_rgb; /* log base 2 of distinct color values */
+        public int map_entries; /* color map entries */
+    }
+
+    public unsafe struct Depth
+    {
+        public int depth;		/* this depth (Z) of the depth */
+        public int nvisuals;		/* number of Visual types at this depth */
+        public Visual *visuals;	/* list of visuals possible at this depth */
+    }
+    
+    
     [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
-    public struct XWindowAttributes 
+    public unsafe struct Screen
+    {
+        public XExtData* ext_data; /* hook for extension to hang data */
+        public System.IntPtr display; /* back pointer to display structure */ // typedef struct _XDisplay Display;
+        public System.UIntPtr root; /* Root window id. */ // typedef XID Window; typedef unsigned long XID;
+        public int width, height; /* width and height of screen */
+        public int mwidth, mheight; /* width and height of  in millimeters */
+        public int ndepths; /* number of depths possible */
+        public Depth* depths; /* list of allowable depths on the screen */
+        public int root_depth; /* bits per pixel */
+        public Visual* root_visual; /* root visual */
+        public System.IntPtr default_gc; /* GC for the root root visual */ // GC
+        public System.UIntPtr cmap; /* default color map */ // typedef XID Colormap; typedef unsigned long XID;
+        public System.UIntPtr white_pixel; // unsigned long
+        public System.UIntPtr black_pixel; /* White and Black pixel values */ // unsigned long
+        public int max_maps, min_maps; /* max and min color maps */
+        public int backing_store; /* Never, WhenMapped, Always */
+        public int save_unders; // #define Bool int
+        public long root_input_mask; /* initial root input mask */
+    }
+    
+
+
+
+    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+    public unsafe struct XWindowAttributes 
     {
         public int x, y;			/* location of window */
         public int width, height;		/* width and height of window */
@@ -76,9 +135,10 @@ namespace libRtaNetworkStreaming
         public long your_event_mask;	/* my event mask */
         public long do_not_propagate_mask; /* set of events that should not propagate */
         public int override_redirect;	/* Bool - boolean value for override-redirect */
-        public System.IntPtr screen;		/* Screen * - back pointer to correct screen */
+        public Screen* screen;		/* Screen * - back pointer to correct screen */
     }
-
+    
+    
     [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
     public struct XFixesCursorImage
     {
@@ -92,8 +152,8 @@ namespace libRtaNetworkStreaming
         public System.IntPtr name; /* Version >= 2 only */ // const char*
         // #endif
     }
-
-
+    
+    
     public static unsafe class XLib
     {
     
@@ -105,8 +165,7 @@ namespace libRtaNetworkStreaming
 
         
         
-        // XShmCreateImage XShmAttach XShmGetImage XShmDetach 
-        // nm /usr/lib/x86_64-linux-gnu/libXext.so.6 -D | grep "XShmCreateImage"
+        
         // language:C#  extension:cs
         
         // shmget shmat shmdt:
@@ -116,57 +175,11 @@ namespace libRtaNetworkStreaming
         private const string LibX11 = "libX11";
         
         
-        [System.Runtime.InteropServices.DllImport("libc")] 
-        public static extern int shmget( int key, System.IntPtr size, int shmflg ); 
-        // extern int shmget (key_t __key, size_t __size, int __shmflg) __THROW;
-        
-        [System.Runtime.InteropServices.DllImport("libc")] 
-        public static extern int shmat( int shmid, System.IntPtr shmaddr, int shmflg ); 
-        // extern void *shmat (int __shmid, const void *__shmaddr, int __shmflg)
-        
-        [System.Runtime.InteropServices.DllImport("libc")] 
-        public static extern int shmdt( System.IntPtr shmaddr ); 
-        // extern int shmdt (const void *__shmaddr) __THROW;
-        
         // [System.Runtime.InteropServices.DllImport("libc")] 
         // public static extern int shmctl(int shmid, int cmd, System.IntPtr buf); 
         // extern int shmctl (int __shmid, int __cmd, struct shmid_ds *__buf) __THROW;
         
             
-        
-        [System.Runtime.InteropServices.DllImport(LibX11, EntryPoint = "XShmAttach", CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
-        public static extern int XShmAttach(UIntPtr display, ref XShmSegmentInfo shminfo);
-        // Bool XShmAttach( Display* /* dpy */, XShmSegmentInfo*	/* shminfo */ );
-        
-        [System.Runtime.InteropServices.DllImport(LibX11, EntryPoint = "XShmDetach", CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
-        public static extern int XShmDetach(UIntPtr display, ref XShmSegmentInfo shminfo);
-        // Bool XShmDetach(Display* /* dpy */, XShmSegmentInfo*	/* shminfo */ );
-
-        
-        
-        [System.Runtime.InteropServices.DllImport(LibX11, EntryPoint = "XShmGetImage", CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
-        public static extern int XShmGetImage(UIntPtr display, UIntPtr drawable, ref XImage image, int x, int y, System.UIntPtr plane_mask);
-        // Bool XShmGetImage(Display* /* dpy */, Drawable /* d */, XImage* /* image */, int /* x */, int /* y */, unsigned long /* plane_mask */);
-        
-        
-        
-
-        [System.Runtime.InteropServices.DllImport(LibX11, EntryPoint = "XGetImage", CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
-        [return: NativeTypeName("XImage *")]
-        public static extern XImage* XGetImage(
-              [NativeTypeName("Display *")] UIntPtr display
-            , [NativeTypeName("Drawable")] UIntPtr d
-            , int x, int y
-            , [NativeTypeName("unsigned int")] uint width
-            , [NativeTypeName("unsigned int")] uint height
-            , [NativeTypeName("unsigned long")] UIntPtr plane_mask, int format);
-
-
-        [System.Runtime.InteropServices.DllImport(LibX11, EntryPoint = "XGetWindowAttributes"
-            , CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
-        // extern Status XGetWindowAttributes(Display* /* display */, Window /* w */, XWindowAttributes*	/* window_attributes_return */);
-        private static extern int XGetWindowAttributes(UIntPtr display, UIntPtr window, ref XWindowAttributes windowAttributesReturn);
-        
         
         
         
@@ -182,18 +195,18 @@ namespace libRtaNetworkStreaming
 
 
     [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
-    public unsafe partial struct XImage
+    public unsafe struct XImage
     {
-        public int width;
-        public int height;
+        public int width; // offset 0
+        public int height; // offset 4
 
-        public int xoffset;
-        public int format;
+        public int xoffset; // offset 8 
+        public int format; // offset 12 
 
         [NativeTypeName("char *")]
-        public sbyte* data;
+        public sbyte* data; // offset 16
 
-        public int byte_order;
+        public int byte_order; // 24 (x64), 20 (x32)
         public int bitmap_unit;    
         public int bitmap_bit_order;
         public int bitmap_pad;

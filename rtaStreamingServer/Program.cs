@@ -6,16 +6,19 @@ using Pango;
 using PangoSharp;
 using GLibSharp;
 using GtkSharp;
+using libRtaNetworkStreaming;
+using Window = Gdk.Window;
 
 
 namespace rtaStreamingServer
 {
 
+    using rtaNetworking.Linux;
 
-    class Program
+    public class Program
     {
-
-
+        
+        
         public static void TestGDK()
         {
             // https://github.com/GtkSharp/GtkSharp
@@ -123,6 +126,63 @@ namespace rtaStreamingServer
                 return managedArray;
             }
 
+        }
+        
+        
+        
+        
+        public static void TestX11_Simple()
+        {
+            System.IntPtr display = LibX11Functions.XOpenDisplay(System.IntPtr.Zero);
+            
+            int defaultScreen = LibX11Functions.XDefaultScreen(display);
+            System.UIntPtr window = LibX11Functions.XRootWindow(display, defaultScreen);
+            
+            int screen_width = LibX11Functions.DisplayWidth(display, defaultScreen);
+            int screen_height = LibX11Functions.DisplayHeight(display, defaultScreen);
+            
+            XWindowAttributes xa = new XWindowAttributes();
+            LibX11Functions.XGetWindowAttributes(display, window, ref xa);
+            System.Console.WriteLine(xa.width);
+            System.Console.WriteLine(xa.height);
+
+            int AllPlanes = ~0;
+            System.UIntPtr AllPlanes2 = new System.UIntPtr((uint)AllPlanes);
+            /*
+            XImage* img = LibX11Functions.XGetImage2(display, window, 0, 0, (uint) xa.width, (uint)xa.height
+                , AllPlanes2, LinScreen.ZPixmap);
+            */
+            
+            
+            // System.IntPtr image = LibX11Functions.XGetImage(display, window, 0, 0, (uint) xa.width, (uint)xa.height
+            //     , AllPlanes2, LinScreen.ZPixmap);
+            
+            tt.Foo(display, window, 0, 0, (uint) xa.width, (uint)xa.height
+                , AllPlanes2, LinScreen.ZPixmap);
+            
+            
+            // XImage img = System.Runtime.InteropServices.Marshal.PtrToStructure<XImage>(image);
+            
+            
+            // System.Console.WriteLine(img.bitmap_bit_order);
+            // System.Console.WriteLine(img.bits_per_pixel);
+            // System.Console.WriteLine(img.width);
+            // System.Console.WriteLine(img.height);
+            // System.Console.WriteLine(img.data);
+            
+            // // // // // // 
+            
+            // System.Console.WriteLine(img->bitmap_bit_order);
+            // System.Console.WriteLine(img->width);
+            // System.Console.WriteLine(img->height);
+            // System.Console.WriteLine(img->data);
+            
+            // rtaNetworking.Linux.tt.foo();
+            
+            // LibX11Functions.XDestroyImage2(img);
+            
+            
+            LibX11Functions.XCloseDisplay(display);
         }
 
         // https://stackoverflow.com/questions/11452246/add-a-bitmap-header-to-a-byte-array-then-create-a-bitmap-file
@@ -343,7 +403,8 @@ int main() {
             int bytesPerPixel = (bitsPerPixel + 7) / 8;
             int stride = 4 * ((imageWidth * bytesPerPixel + 3) / 4);
             // which is actually: int stride = 4 * Floor((imageWidth * bytesPerPixel + 3) / 4);
-
+            
+            
             System.Drawing.Bitmap im = new System.Drawing.Bitmap(columns, rows, stride,
                      System.Drawing.Imaging.PixelFormat.Format8bppIndexed,
                      System.Runtime.InteropServices.Marshal.UnsafeAddrOfPinnedArrayElement(newbytes, 0)
@@ -361,7 +422,20 @@ int main() {
                 Xorg.API.XInitThreads();
             } // End if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
 
-            PerformanceTest();
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            for (int i = 0; i < 100; ++i)
+            {
+                sw.Start();
+                // System.Console.WriteLine(System.DateTime.Now.ToString("dd:MM:yyyy HH:mm:ss.fff"));
+                tt.TestX11();
+                sw.Stop();
+                System.Console.WriteLine(sw.ElapsedMilliseconds);
+                sw.Reset();
+            }
+
+            
+            
+            // PerformanceTest();
 
             // https://www.x.org/releases/X11R7.5/doc/man/man3/XInitThreads.3.html
             // TestScreenshot();

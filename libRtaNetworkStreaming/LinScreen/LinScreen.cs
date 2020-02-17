@@ -73,7 +73,8 @@ namespace rtaNetworking.Linux
             System.Drawing.Size blockRegionSize
             , System.Drawing.CopyPixelOperation copyPixelOperation)
         {
-            System.IntPtr window, image, defvisual, vPtr;
+            System.UIntPtr window;
+            System.IntPtr image, defvisual, vPtr;
             int AllPlanes = ~0, nitems = 0, pixel;
             System.UIntPtr AllPlanes2 = new System.UIntPtr((uint)AllPlanes);
 
@@ -89,7 +90,7 @@ namespace rtaNetworking.Linux
             window = LibX11Functions.XRootWindow(Gdip.Display, 0);
             defvisual = LibX11Functions.XDefaultVisual(Gdip.Display, 0);
             XVisualInfo visual = new XVisualInfo();
-
+            
             // Get XVisualInfo for this visual
             visual.visualid = LibX11Functions.XVisualIDFromVisual(defvisual);
             vPtr = LibX11Functions.XGetVisualInfo(Gdip.Display, VisualIDMask, ref visual, ref nitems);
@@ -113,7 +114,7 @@ namespace rtaNetworking.Linux
                 for (int x = 0; x < blockRegionSize.Width; x++)
                 {
                     pixel = LibX11Functions.XGetPixel(image, x, y);
-
+                    
                     switch (visual.depth)
                     {
                         case 16: /* 16bbp pixel transformation */
