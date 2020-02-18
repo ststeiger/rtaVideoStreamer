@@ -332,8 +332,8 @@ namespace rtaNetworking.Linux
         private const string LIBXFIXES = "libXfixes";
         
         
-        [DllImport(LIBXFIXES, EntryPoint = "XFixesGetCursorImage")]
-        public static extern IntPtr XFixesGetCursorImage(IntPtr display);    
+        [System.Runtime.InteropServices.DllImport(LIBXFIXES, EntryPoint = "XFixesGetCursorImage")]
+        public static extern System.IntPtr XFixesGetCursorImage(System.IntPtr display);    
     }
     
     
