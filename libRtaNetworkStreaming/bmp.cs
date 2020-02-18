@@ -2,13 +2,9 @@ namespace rtaNetworking.Streaming
 {
 
 
-    // #ifdef _MSC_VER
-    // #pragma pack(push)  // save the original data alignment
-    // #pragma pack(1)     // Set data alignment to 1 byte boundary
-    // #endif
-
-    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
-    public struct BMPHeader // # ifndef _MSC_VER __attribute__((packed)) #endif
+    
+    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential, Pack = 1)]
+    public struct BMPHeader 
     {
         public ushort type;              // Magic identifier: 0x4d42
         public uint size;              // File size in bytes
@@ -27,9 +23,8 @@ namespace rtaNetworking.Streaming
         public uint num_colors;        // Number of colors
         public uint important_colors;  // Important colors
     }
-
-
-    // #ifdef _MSC_VER #pragma pack(pop)  // restore the previous pack setting #endif
+    
+    
     [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
     public struct BMPImage
     {

@@ -146,6 +146,8 @@ namespace rtaNetworking.Linux
             // Marshal.Copy((IntPtr)(ximg->data), managedArray, 0, (int)size);
             // System.Console.WriteLine(managedArray);
             
+            paint_mouse_pointer(display, ximg);
+            
             
             string filename = "/tmp/shtest.bmp";
             using(System.Drawing.Bitmap bmp = new System.Drawing.Bitmap(ximg->width, ximg->height, stride, System.Drawing.Imaging.PixelFormat.Format24bppRgb, (System.IntPtr) ximg->data))
@@ -169,6 +171,112 @@ namespace rtaNetworking.Linux
         }
         
        
+        
+                
+        // https://stackoverflow.com/questions/28300149/is-there-a-list-of-all-xfixes-cursor-types
+        // https://ffmpeg.org/doxygen/2.8/common_8h.html
+        // #define 	FFMAX(a, b)   ((a) > (b) ? (a) : (b))
+        // #define 	FFMIN(a, b)   ((a) > (b) ? (b) : (a))
+
+        private static int FFMAX(int a, int b)
+        {
+            if (a > b)
+                return a;
+
+            return b;
+        }
+        
+        private static int FFMIN(int a, int b)
+        {
+            if (a > b)
+                return b;
+            
+            return a;
+        }
+        
+        
+        // http://www.staroceans.org/myprojects/ffplay/libavdevice/x11grab.c
+        public static unsafe void paint_mouse_pointer(System.IntPtr dpy, XImage *image) //, struct x11grab *s)
+        {
+            // int x_off = s->x_off;
+            // int y_off = s->y_off;
+            // int width = s->width;
+            // int height = s->height;
+            // Display *dpy = s->dpy;
+
+            int x_off = 0;
+            int y_off = 0;
+            int width = image->width;
+            int height = image->height;
+
+            XFixesCursorImage *xcim;
+            int x, y;
+            int line, column;
+            int to_line, to_column;
+            int pixstride = image->bits_per_pixel >> 3;
+            // Warning: in its insanity, xlib provides unsigned image data through a
+            // char* pointer, so we have to make it uint8_t to make things not break.
+            // Anyone who performs further investigation of the xlib API likely risks
+            // permanent brain damage. 
+            
+            byte *pix = (byte*) image->data;
+            
+            // Cursor c;
+            // Window w;
+            // XSetWindowAttributes attr;
+            
+            // Code doesn't currently support 16-bit or PAL8
+            if (image->bits_per_pixel != 24 && image->bits_per_pixel != 32)
+                return;
+
+            // c = XCreateFontCursor(dpy, XC_left_ptr);
+            // w = DefaultRootWindow(dpy);
+            // attr.cursor = c;
+            // XChangeWindowAttributes(dpy, w, CWCursor, &attr);
+
+            xcim = LibXfixes.XFixesGetCursorImage(dpy);
+            
+            x = xcim->x - xcim->xhot;
+            y = xcim->y - xcim->yhot;
+
+            to_line = FFMIN((y + xcim->height), (height + y_off));
+            to_column = FFMIN((x + xcim->width), (width + x_off));
+
+            for (line = FFMAX(y, y_off); line < to_line; line++)
+            {
+                for (column = FFMAX(x, x_off); column < to_column; column++)
+                {
+                    int xcim_addr = (line - y) * xcim->width + column - x;
+                    int image_addr = ((line - y_off) * width + column - x_off) * pixstride;
+                    byte r = (byte)(xcim->pixels[xcim_addr].ToUInt64() >>  0);
+                    byte g = (byte)(xcim->pixels[xcim_addr].ToUInt64() >>  8);
+                    byte b = (byte)(xcim->pixels[xcim_addr].ToUInt64() >> 16);
+                    byte a = (byte)(xcim->pixels[xcim_addr].ToUInt64() >> 24);
+                    
+                    if (a == 255)
+                    {
+                        pix[image_addr+0] = r;
+                        pix[image_addr+1] = g;
+                        pix[image_addr+2] = b;
+                    }
+                    else if (a != 0)
+                    {
+                        byte aaa = pix[image_addr + 2];
+                        
+                        // pixel values from XFixesGetCursorImage come premultiplied by alpha
+                        pix[image_addr+0] = (byte) (r + (pix[image_addr+0]*(255-a) + 255/2) / 255);
+                        pix[image_addr+1] = (byte) (g + (pix[image_addr+1]*(255-a) + 255/2) / 255);
+                        pix[image_addr+2] = (byte) (b + (pix[image_addr+2]*(255-a) + 255/2) / 255);
+                    }
+                }
+            }
+            
+            LibX11Functions.XFree(xcim);
+            xcim = null;
+        }
+
+        
+        
             
         public static unsafe void Foo(
             System.IntPtr display
@@ -333,7 +441,9 @@ namespace rtaNetworking.Linux
         
         
         [System.Runtime.InteropServices.DllImport(LIBXFIXES, EntryPoint = "XFixesGetCursorImage")]
-        public static extern System.IntPtr XFixesGetCursorImage(System.IntPtr display);    
+        public static extern unsafe XFixesCursorImage* XFixesGetCursorImage(System.IntPtr display);    
+        // XFixesCursorImage * XFixesGetCursorImage (Display *dpy);
+        
     }
     
     
@@ -385,10 +495,6 @@ namespace rtaNetworking.Linux
         public static extern int DisplayWidth(System.IntPtr display, int screen_number);
 
         
-        [System.Runtime.InteropServices.DllImport("libXfixes", EntryPoint = "XFixesGetCursorImage")]
-        public static extern System.IntPtr XFixesGetCursorImage(System.IntPtr display);
-        // XFixesCursorImage * XFixesGetCursorImage (Display *dpy);
-        
         
         // https://tronche.com/gui/x/xlib/graphics/XGetImage.html
         [System.Runtime.InteropServices.DllImport(LIBX11, EntryPoint = "XGetImage")]
@@ -415,6 +521,10 @@ namespace rtaNetworking.Linux
 
         [System.Runtime.InteropServices.DllImport(LIBX11, EntryPoint = "XFree")]
         public static extern void XFree(System.IntPtr data);
+        
+        [System.Runtime.InteropServices.DllImport(LIBX11, EntryPoint = "XFree")]
+        public static extern void XFree(XFixesCursorImage *xcim);
+        
     }
     
     
