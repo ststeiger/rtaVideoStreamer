@@ -146,7 +146,7 @@ namespace rtaNetworking.Linux
             // Marshal.Copy((IntPtr)(ximg->data), managedArray, 0, (int)size);
             // System.Console.WriteLine(managedArray);
             
-            paint_mouse_pointer(display, ximg);
+            PaintMousePointer(display, ximg);
             
             
             string filename = "/tmp/shtest.bmp";
@@ -162,7 +162,6 @@ namespace rtaNetworking.Linux
                 
             }
 
-            
             LibX11Functions.XDestroyImage2(ximg);
             LibXExt.XShmDetach(display, ref shminfo);
             LibC.shmdt(shminfo.shmaddr);
@@ -196,7 +195,7 @@ namespace rtaNetworking.Linux
         
         
         // http://www.staroceans.org/myprojects/ffplay/libavdevice/x11grab.c
-        public static unsafe void paint_mouse_pointer(System.IntPtr dpy, XImage *image) //, struct x11grab *s)
+        private static unsafe void PaintMousePointer(System.IntPtr dpy, XImage *image) //, struct x11grab *s)
         {
             // int x_off = s->x_off;
             // int y_off = s->y_off;
@@ -289,6 +288,7 @@ namespace rtaNetworking.Linux
         {
             XImage* img = LibX11Functions.XGetImage2(display, d, x, y, width, height, plane_mask, format);
             
+            PaintMousePointer(display, img);
             
             int bitsPerPixel = img->bits_per_pixel;
             System.UIntPtr ptrImg = (System.UIntPtr)img;
