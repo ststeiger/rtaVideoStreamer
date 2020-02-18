@@ -3,13 +3,13 @@
 // Ported from X11\Xlib.h in the Xlib - C Language X Interface: X Version 11, Release 7.7
 // Original source is Copyright © The Open Group
 
-using System;
 
 namespace libRtaNetworkStreaming
 {
     
+
     sealed class NativeTypeNameAttribute 
-        : Attribute
+        : System.Attribute
     {
         // See the attribute guidelines at http://go.microsoft.com/fwlink/?LinkId=85236
         public NativeTypeNameAttribute(string name)
@@ -29,15 +29,15 @@ namespace libRtaNetworkStreaming
 
         public int GetNativeDataSize() => System.Runtime.InteropServices.Marshal.SizeOf(typeof(XImage));
 
-        public object MarshalNativeToManaged(IntPtr nativeData) => 
+        public object MarshalNativeToManaged(System.IntPtr nativeData) => 
             System.Runtime.InteropServices.Marshal.PtrToStructure<XImage>(nativeData);
 
         // in this sample I suppose the native side uses GlobalAlloc (or LocalAlloc)
         // but you can use any allocation library provided you use the same on both sides
-        public void CleanUpNativeData(IntPtr nativeData) => System.Runtime.InteropServices.Marshal.FreeHGlobal(nativeData);
+        public void CleanUpNativeData(System.IntPtr nativeData) => System.Runtime.InteropServices.Marshal.FreeHGlobal(nativeData);
 
-        public IntPtr MarshalManagedToNative(object managedObj) => throw new NotImplementedException();
-        public void CleanUpManagedData(object managedObj) => throw new NotImplementedException();
+        public System.IntPtr MarshalManagedToNative(object managedObj) => throw new System.NotImplementedException();
+        public void CleanUpManagedData(object managedObj) => throw new System.NotImplementedException();
     }
 
     // #define IPC_CREAT	01000		/* Create key if key does not exist. */
@@ -185,10 +185,10 @@ namespace libRtaNetworkStreaming
         
         [System.Runtime.InteropServices.DllImport(LibX11, CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
         [return:System.Runtime.InteropServices.MarshalAs( System.Runtime.InteropServices.UnmanagedType.LPStruct)]        
-        private static extern XImage GetFoo([NativeTypeName("Display *")] UIntPtr display
-            , [NativeTypeName("Drawable")] UIntPtr d, int x, int y
+        private static extern XImage GetFoo([NativeTypeName("Display *")] System.UIntPtr display
+            , [NativeTypeName("Drawable")] System.UIntPtr d, int x, int y
             , [NativeTypeName("unsigned int")] uint width, [NativeTypeName("unsigned int")] uint height
-            , [NativeTypeName("unsigned long")] UIntPtr plane_mask, int format);
+            , [NativeTypeName("unsigned long")] System.UIntPtr plane_mask, int format);
         
         
     }
@@ -215,13 +215,13 @@ namespace libRtaNetworkStreaming
         public int bits_per_pixel;
         
         [NativeTypeName("unsigned long")]
-        public UIntPtr red_mask;
+        public System.UIntPtr red_mask;
         
         [NativeTypeName("unsigned long")]
-        public UIntPtr green_mask;
+        public System.UIntPtr green_mask;
         
         [NativeTypeName("unsigned long")]
-        public UIntPtr blue_mask;
+        public System.UIntPtr blue_mask;
         
         [NativeTypeName("XPointer")] // typedef char *XPointer;
         public sbyte* obdata;
@@ -232,22 +232,22 @@ namespace libRtaNetworkStreaming
         public partial struct funcs
         {
             [NativeTypeName("struct XImage *(*)(struct XDisplay *, Visual *, unsigned int, int, int, char *, unsigned int, unsigned int, int, int)")]
-            public IntPtr create_image;
+            public System.IntPtr create_image;
 
             [NativeTypeName("int (*)(struct XImage *)")]
-            public IntPtr destroy_image;
+            public System.IntPtr destroy_image;
 
             [NativeTypeName("unsigned long (*)(struct XImage *, int, int)")]
-            public IntPtr get_pixel;
+            public System.IntPtr get_pixel;
 
             [NativeTypeName("int (*)(struct XImage *, int, int, unsigned long)")]
-            public IntPtr put_pixel;
+            public System.IntPtr put_pixel;
 
             [NativeTypeName("struct XImage *(*)(struct XImage *, int, int, unsigned int, unsigned int)")]
-            public IntPtr sub_image;
+            public System.IntPtr sub_image;
 
             [NativeTypeName("int (*)(struct XImage *, long)")]
-            public IntPtr add_pixel;
+            public System.IntPtr add_pixel;
         }
     }
 }

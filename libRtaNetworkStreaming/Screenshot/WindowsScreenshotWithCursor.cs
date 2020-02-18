@@ -5,9 +5,8 @@ namespace rtaNetworking.Windows
     
     public static class WindowsScreenshotWithCursor
     {
-        
-        
-        
+
+
         [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
         struct CURSORINFO
         {
