@@ -425,7 +425,7 @@ int main() {
             System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
             for (int i = 0; i < 100; ++i)
             {
-                sw.Start();
+                sw.Start ();
                 // System.Console.WriteLine(System.DateTime.Now.ToString("dd:MM:yyyy HH:mm:ss.fff"));
                 tt.TestX11();
                 sw.Stop();
