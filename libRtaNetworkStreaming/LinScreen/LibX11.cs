@@ -1,10 +1,8 @@
-using System.Drawing.Imaging;
-using System.IO;
 
 namespace rtaNetworking.Linux
 {
-    using System;
-    using System.Runtime.InteropServices;
+
+    
     using libRtaNetworkStreaming;
 
 
@@ -154,9 +152,9 @@ namespace rtaNetworking.Linux
             {
                 // bmp.Save(filename);
                 
-                using (System.IO.MemoryStream ms = new MemoryStream())
+                using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
                 {
-                    bmp.Save(ms, ImageFormat.Jpeg);
+                    bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
                     ms.ToArray();
                 }
                 
@@ -197,11 +195,13 @@ namespace rtaNetworking.Linux
             System.Console.WriteLine("p1: {0}, p2: {1}", ptrImg.ToUInt64(), pixels.ToUInt64());
             System.Console.WriteLine("Delta: {0}", int64); // 16
             System.Console.WriteLine("Delta 2: {0}", int642); // 16
-            
+
             // https://stackoverflow.com/questions/30476131/c-sharp-read-pointer-address-value
-            IntPtr ptr = (IntPtr)(ptrImg.ToUInt64()+16);
-            long longValue = Marshal.ReadInt64(ptr);
+            System.IntPtr ptr = (System.IntPtr)(ptrImg.ToUInt64()+16);
+            long longValue = System.Runtime.InteropServices.Marshal.ReadInt64(ptr);
+
             
+
             System.Console.WriteLine("pt1: {0}, pt2: {1}", ((System.UIntPtr)(img->data)).ToUInt64(), longValue);
             
             
@@ -216,9 +216,7 @@ namespace rtaNetworking.Linux
 
             // long size = height * stride;
             // byte[] managedArray = new byte[size];
-            // Marshal.Copy((IntPtr)(img->data), managedArray, 0, (int)size);
-            
-
+            // System.Runtime.InteropServices.Marshal.Copy((System.IntPtr)(img->data), managedArray, 0, (int)size);
 
             System.Drawing.Bitmap bmp = new System.Drawing.Bitmap((int)width, (int)height, stride, System.Drawing.Imaging.PixelFormat.Format24bppRgb, (System.IntPtr)img->data);
             bmp.Save(filename);
@@ -236,14 +234,14 @@ namespace rtaNetworking.Linux
     [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
     public struct XVisualInfo
     {
-        public IntPtr visual;
-        public UIntPtr visualid; // typedef unsigned long VisualID;; // https://code.woboq.org/qt5/include/X11/X.h.html
+        public System.IntPtr visual;
+        public System.UIntPtr visualid; // typedef unsigned long VisualID;; // https://code.woboq.org/qt5/include/X11/X.h.html
         public int screen;
         public int depth;
         public int klass;
-        public UIntPtr red_mask; // unsigned long
-        public UIntPtr green_mask; // unsigned long
-        public UIntPtr blue_mask; // unsigned long
+        public System.UIntPtr red_mask; // unsigned long
+        public System.UIntPtr green_mask; // unsigned long
+        public System.UIntPtr blue_mask; // unsigned long
         public int colormap_size;
         public int bits_per_rgb;
     }
@@ -266,7 +264,7 @@ namespace rtaNetworking.Linux
         // (though it is usual for the "negative" addresses to be kernel addresses).
         
         [System.Runtime.InteropServices.DllImport(LIBEXT, EntryPoint = "XShmDetach", CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
-        public static extern int XShmDetach(IntPtr display, ref XShmSegmentInfo shminfo);
+        public static extern int XShmDetach(System.IntPtr display, ref XShmSegmentInfo shminfo);
         // Bool XShmDetach(Display* /* dpy */, XShmSegmentInfo*	/* shminfo */ );
 
         
@@ -274,7 +272,7 @@ namespace rtaNetworking.Linux
         // nm /usr/lib/x86_64-linux-gnu/libXext.so.6 -D | grep "XShmCreateImage"
         
         [System.Runtime.InteropServices.DllImport(LIBEXT, EntryPoint = "XShmGetImage", CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
-        public static extern unsafe int XShmGetImage(IntPtr display, UIntPtr drawable, XImage* image, int x, int y, System.UIntPtr plane_mask);
+        public static extern unsafe int XShmGetImage(System.IntPtr display, System.UIntPtr drawable, XImage* image, int x, int y, System.UIntPtr plane_mask);
         // Bool XShmGetImage(Display* /* dpy */, Drawable /* d */, XImage* /* image */, int /* x */, int /* y */, unsigned long /* plane_mask */);
         
         [System.Runtime.InteropServices.DllImport(LIBEXT, EntryPoint = "XShmCreateImage", CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
@@ -361,23 +359,23 @@ namespace rtaNetworking.Linux
         [System.Runtime.InteropServices.DllImport(LIBX11, EntryPoint = "XGetWindowAttributes"
             , CallingConvention = System.Runtime.InteropServices.CallingConvention.Cdecl)]
         // extern Status XGetWindowAttributes(Display* /* display */, Window /* w */, XWindowAttributes*	/* window_attributes_return */);
-        public static extern int XGetWindowAttributes(System.IntPtr display, UIntPtr window, ref XWindowAttributes windowAttributesReturn);
+        public static extern int XGetWindowAttributes(System.IntPtr display, System.UIntPtr window, ref XWindowAttributes windowAttributesReturn);
         
         
         // Some special X11 stuff
-        [DllImport(LIBX11, EntryPoint = "XOpenDisplay")]
-        public static extern IntPtr XOpenDisplay(System.IntPtr display);
+        [System.Runtime.InteropServices.DllImport(LIBX11, EntryPoint = "XOpenDisplay")]
+        public static extern System.IntPtr XOpenDisplay(System.IntPtr display);
 
-        [DllImport(LIBX11, EntryPoint = "XCloseDisplay")]
+        [System.Runtime.InteropServices.DllImport(LIBX11, EntryPoint = "XCloseDisplay")]
         public static extern int XCloseDisplay(System.IntPtr display);
 
-        [DllImport(LIBX11, EntryPoint = "XRootWindow")]
+        [System.Runtime.InteropServices.DllImport(LIBX11, EntryPoint = "XRootWindow")]
         public static extern System.UIntPtr XRootWindow(System.IntPtr display, int screen);
 
-        [DllImport(LIBX11, EntryPoint = "XDefaultScreen")]
+        [System.Runtime.InteropServices.DllImport(LIBX11, EntryPoint = "XDefaultScreen")]
         public static extern int XDefaultScreen(System.IntPtr display);
 
-        [DllImport(LIBX11, EntryPoint = "XDefaultDepth")]
+        [System.Runtime.InteropServices.DllImport(LIBX11, EntryPoint = "XDefaultDepth")]
         public static extern uint XDefaultDepth(System.IntPtr display, int screen);
 
         [System.Runtime.InteropServices.DllImport(LIBX11, EntryPoint = "XDisplayHeight")]
@@ -393,30 +391,30 @@ namespace rtaNetworking.Linux
         
         
         // https://tronche.com/gui/x/xlib/graphics/XGetImage.html
-        [DllImport(LIBX11, EntryPoint = "XGetImage")]
-        public static extern IntPtr XGetImage(IntPtr display, System.UIntPtr drawable, int src_x, int src_y, uint width, uint height, System.UIntPtr pane, int format);
+        [System.Runtime.InteropServices.DllImport(LIBX11, EntryPoint = "XGetImage")]
+        public static extern System.IntPtr XGetImage(System.IntPtr display, System.UIntPtr drawable, int src_x, int src_y, uint width, uint height, System.UIntPtr pane, int format);
 
-        [DllImport(LIBX11, EntryPoint = "XGetPixel")]
-        public static extern int XGetPixel(IntPtr image, int x, int y);
+        [System.Runtime.InteropServices.DllImport(LIBX11, EntryPoint = "XGetPixel")]
+        public static extern int XGetPixel(System.IntPtr image, int x, int y);
 
-        [DllImport(LIBX11, EntryPoint = "XDestroyImage")]
-        public static extern int XDestroyImage(IntPtr image);
+        [System.Runtime.InteropServices.DllImport(LIBX11, EntryPoint = "XDestroyImage")]
+        public static extern int XDestroyImage(System.IntPtr image);
         
-        [DllImport(LIBX11, EntryPoint = "XDestroyImage")]
+        [System.Runtime.InteropServices.DllImport(LIBX11, EntryPoint = "XDestroyImage")]
         public static extern int XDestroyImage2(XImage* image);
         
-        [DllImport(LIBX11, EntryPoint = "XDefaultVisual")]
-        public static extern IntPtr XDefaultVisual(IntPtr display, int screen);
+        [System.Runtime.InteropServices.DllImport(LIBX11, EntryPoint = "XDefaultVisual")]
+        public static extern System.IntPtr XDefaultVisual(System.IntPtr display, int screen);
 
         // https://linux.die.net/man/3/xgetvisualinfo
-        [DllImport(LIBX11, EntryPoint = "XGetVisualInfo")]
-        public static extern IntPtr XGetVisualInfo(IntPtr display, System.IntPtr vinfo_mask, ref XVisualInfo vinfo_template, ref int nitems);
+        [System.Runtime.InteropServices.DllImport(LIBX11, EntryPoint = "XGetVisualInfo")]
+        public static extern System.IntPtr XGetVisualInfo(System.IntPtr display, System.IntPtr vinfo_mask, ref XVisualInfo vinfo_template, ref int nitems);
 
-        [DllImport(LIBX11, EntryPoint = "XVisualIDFromVisual")]
-        public static extern UIntPtr XVisualIDFromVisual(IntPtr visual);
+        [System.Runtime.InteropServices.DllImport(LIBX11, EntryPoint = "XVisualIDFromVisual")]
+        public static extern System.UIntPtr XVisualIDFromVisual(System.IntPtr visual);
 
-        [DllImport(LIBX11, EntryPoint = "XFree")]
-        public static extern void XFree(IntPtr data);
+        [System.Runtime.InteropServices.DllImport(LIBX11, EntryPoint = "XFree")]
+        public static extern void XFree(System.IntPtr data);
     }
     
     

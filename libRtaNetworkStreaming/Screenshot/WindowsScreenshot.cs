@@ -1,5 +1,4 @@
 ﻿
-
 // TODO: Solution for OSX: 
 // https://github.com/ScreenshotMonitor/ScreenshotCapture/blob/master/src/Pranas.ScreenshotCapture/ScreenshotCapture.cs
 namespace rtaStreamingServer
