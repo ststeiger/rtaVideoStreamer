@@ -91,18 +91,20 @@ namespace rtaNetworking.Linux
     }
     
     
-    public class tt
+    public class SafeX11
     {
 
-        public static void safe()
+        public static byte[] X11Screenshot()
         {
-            //foo();
+            return X11ScreenshotWithCursor();
         }
-
-     
         
-        public static unsafe void TestX11()
+        
+        public static unsafe byte[] X11ScreenshotWithCursor()
         {
+            byte[] result = null;
+            
+            
             int AllPlanes = ~0;
             System.UIntPtr AllPlanes2 = new System.UIntPtr((uint)AllPlanes);
 
@@ -157,16 +159,18 @@ namespace rtaNetworking.Linux
                 using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
                 {
                     bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
-                    ms.ToArray();
+                    result = ms.ToArray();
                 }
                 
             }
-
+            
             LibX11Functions.XDestroyImage2(ximg);
             LibXExt.XShmDetach(display, ref shminfo);
             LibC.shmdt(shminfo.shmaddr);
             
             LibX11Functions.XCloseDisplay(display);
+            
+            return result;
         }
         
        

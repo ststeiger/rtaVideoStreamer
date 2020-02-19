@@ -149,6 +149,22 @@ namespace rtaStreamingServer
 
 
 
+        public static void TestX11_Shared()
+        {
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+            for (int i = 0; i < 100; ++i)
+            {
+                sw.Start ();
+                // System.Console.WriteLine(System.DateTime.Now.ToString("dd:MM:yyyy HH:mm:ss.fff"));
+                byte[] res = SafeX11.X11Screenshot();}
+                sw.Stop();
+                System.Console.WriteLine(sw.ElapsedMilliseconds);
+                sw.Reset();
+            } // Next i 
+            
+        } // End Sub TestX11_Shared 
+        
+        
         // dotnet publish -f netcoreapp2.1 -c Release -r linux-x64
         // dotnet publish -f netcoreapp3.1 -c Release -r linux-x64
         static void Main(string[] args)
@@ -158,21 +174,11 @@ namespace rtaStreamingServer
                 Xorg.API.XInitThreads();
             } // End if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
 
-            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
-            for (int i = 0; i < 100; ++i)
-            {
-                sw.Start ();
-                // System.Console.WriteLine(System.DateTime.Now.ToString("dd:MM:yyyy HH:mm:ss.fff"));
-                tt.TestX11();
-                sw.Stop();
-                System.Console.WriteLine(sw.ElapsedMilliseconds);
-                sw.Reset();
-            }
-
-            
-            
+            // TestX11_Shared();
             // PerformanceTest();
-
+            
+            
+            
             // https://www.x.org/releases/X11R7.5/doc/man/man3/XInitThreads.3.html
             // TestScreenshot();
             // System.Drawing.Bitmap dstImage = rtaStreamingServer.LinuxScreenShot.GetScreenshot();
@@ -185,11 +191,11 @@ namespace rtaStreamingServer
             System.Console.WriteLine(" --- Press any key to continue --- ");
             // System.Console.ReadKey();
             WaitForKeyPress();
-
+            
             StopServer();
         } // End Sub Main 
-
-
+        
+        
         static void WaitForKeyPress()
         {
 
@@ -221,8 +227,8 @@ namespace rtaStreamingServer
 
             } while (cc != System.ConsoleKey.Enter);
         } // End Sub WaitForEnter 
-
-
+        
+        
         static void TestScreenshot()
         {
             if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
