@@ -50,8 +50,11 @@ namespace rtaStreamingServer
         } // End Sub TestGDK()
 
 
+
+        // Linux is 4.3 times faster ! 
         public static void PerformanceTest()
         {
+            // Average (including first): 12 ms
             if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
             {
                 for (int i = 0; i < 100; ++i)
@@ -59,17 +62,21 @@ namespace rtaStreamingServer
                     System.Diagnostics.Stopwatch stopWatch = new System.Diagnostics.Stopwatch();
                     stopWatch.Start();
 
-                    using (System.Drawing.Bitmap bmp = rtaNetworking.Linux.LinScreen.CopyFromScreenX11())
-                    {
-                        // System.Console.WriteLine(System.DateTime.Now.ToString("HH:mm:ss.fff"));
-                        // bmp.Save("screenshot" + i.ToString() + ".bmp");    
-                    } // End Using bmp 
+                    //using (System.Drawing.Bitmap bmp = rtaNetworking.Linux.LinScreen.CopyFromScreenX11())
+                    //{
+                    //    // System.Console.WriteLine(System.DateTime.Now.ToString("HH:mm:ss.fff"));
+                    //    // bmp.Save("screenshot" + i.ToString() + ".bmp");    
+                    //} // End Using bmp 
+
+                    byte[] ba = rtaNetworking.Linux.SafeX11.X11Screenshot(true);
 
                     stopWatch.Stop();
                     System.Console.WriteLine(stopWatch.ElapsedMilliseconds); // Mean value 370ms...
                 } // Next i
             } // End if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux)) 
 
+
+            // Average (except first): 52.1 ms
             if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
             {
                 for (int i = 0; i < 100; ++i)
@@ -77,10 +84,20 @@ namespace rtaStreamingServer
                     System.Diagnostics.Stopwatch stopWatch = new System.Diagnostics.Stopwatch();
                     stopWatch.Start();
 
+                    byte[] ba = null; 
+
                     using (System.Drawing.Bitmap bmp = rtaNetworking.Windows.WindowsScreenshotWithCursor.CreateSingleScreenshot())
                     {
                         // System.Console.WriteLine(System.DateTime.Now.ToString("HH:mm:ss.fff"));
                         // bmp.Save("screenshot" + i.ToString() + ".bmp");    
+
+                        using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
+                        {
+                            bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                            ba = ms.ToArray();
+                        }
+
                     } // End Using bmp 
 
                     stopWatch.Stop();
@@ -118,8 +135,8 @@ namespace rtaStreamingServer
             // System.IntPtr image = LibX11Functions.XGetImage(display, window, 0, 0, (uint) xa.width, (uint)xa.height
             //     , AllPlanes2, LinScreen.ZPixmap);
             
-            tt.Foo(display, window, 0, 0, (uint) xa.width, (uint)xa.height
-                , AllPlanes2, LinScreen.ZPixmap);
+            SafeX11.SlowScreenshot(display, window, 0, 0, (uint) xa.width, (uint)xa.height
+                , AllPlanes2, LinScreen.ZPixmap, true);
             
             
             // XImage img = System.Runtime.InteropServices.Marshal.PtrToStructure<XImage>(image);
@@ -156,7 +173,7 @@ namespace rtaStreamingServer
             {
                 sw.Start ();
                 // System.Console.WriteLine(System.DateTime.Now.ToString("dd:MM:yyyy HH:mm:ss.fff"));
-                byte[] res = SafeX11.X11Screenshot();}
+                byte[] res = SafeX11.X11Screenshot(true);
                 sw.Stop();
                 System.Console.WriteLine(sw.ElapsedMilliseconds);
                 sw.Reset();
@@ -183,7 +200,7 @@ namespace rtaStreamingServer
             // TestScreenshot();
             // System.Drawing.Bitmap dstImage = rtaStreamingServer.LinuxScreenShot.GetScreenshot();
 
-            // RunServer();
+            RunServer();
 
             // https://www.cyotek.com/blog/capturing-screenshots-using-csharp-and-p-invoke
 

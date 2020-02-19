@@ -94,13 +94,14 @@ namespace rtaNetworking.Linux
     public class SafeX11
     {
 
-        public static byte[] X11Screenshot()
+        public static byte[] X11Screenshot(bool withCursor)
         {
-            return X11ScreenshotWithCursor();
+            return UnsafeX11ScreenshotWithCursor(withCursor);
         }
-        
-        
-        public static unsafe byte[] X11ScreenshotWithCursor()
+
+
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
+        private static unsafe byte[] UnsafeX11ScreenshotWithCursor(bool withCursor)
         {
             byte[] result = null;
             
@@ -142,27 +143,29 @@ namespace rtaNetworking.Linux
             // WriteBitmapToFile(filename, (int) ximg->bits_per_pixel, (int)window_attributes.width, (int)window_attributes.height, (const void*) ximg->data);
             int bytesPerPixel = (ximg->bits_per_pixel + 7) / 8;
             int stride = 4 * ((ximg->width * bytesPerPixel + 3) / 4);
-            
+
             // long size = ximg->height * stride;
             // byte[] managedArray = new byte[size];
             // Marshal.Copy((IntPtr)(ximg->data), managedArray, 0, (int)size);
             // System.Console.WriteLine(managedArray);
-            
-            PaintMousePointer(display, ximg);
-            
-            
-            string filename = "/tmp/shtest.bmp";
+
+            if (withCursor)
+            {
+                PaintMousePointer(display, ximg);
+            } // End if (withCursor) 
+
+
             using(System.Drawing.Bitmap bmp = new System.Drawing.Bitmap(ximg->width, ximg->height, stride, System.Drawing.Imaging.PixelFormat.Format24bppRgb, (System.IntPtr) ximg->data))
             {
-                // bmp.Save(filename);
-                
+                // bmp.Save("/tmp/shtest.bmp");
+
                 using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
                 {
                     bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
                     result = ms.ToArray();
-                }
+                } // End Using ms 
                 
-            }
+            } // End Using bmp 
             
             LibX11Functions.XDestroyImage2(ximg);
             LibXExt.XShmDetach(display, ref shminfo);
@@ -171,16 +174,17 @@ namespace rtaNetworking.Linux
             LibX11Functions.XCloseDisplay(display);
             
             return result;
-        }
-        
-       
-        
-                
+        } // End Function UnsafeX11ScreenshotWithCursor 
+
+
+
+
         // https://stackoverflow.com/questions/28300149/is-there-a-list-of-all-xfixes-cursor-types
         // https://ffmpeg.org/doxygen/2.8/common_8h.html
         // #define 	FFMAX(a, b)   ((a) > (b) ? (a) : (b))
         // #define 	FFMIN(a, b)   ((a) > (b) ? (b) : (a))
 
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         private static int FFMAX(int a, int b)
         {
             if (a > b)
@@ -188,7 +192,8 @@ namespace rtaNetworking.Linux
 
             return b;
         }
-        
+
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         private static int FFMIN(int a, int b)
         {
             if (a > b)
@@ -196,9 +201,10 @@ namespace rtaNetworking.Linux
             
             return a;
         }
-        
-        
+
+
         // http://www.staroceans.org/myprojects/ffplay/libavdevice/x11grab.c
+        [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         private static unsafe void PaintMousePointer(System.IntPtr dpy, XImage *image) //, struct x11grab *s)
         {
             // int x_off = s->x_off;
@@ -278,21 +284,42 @@ namespace rtaNetworking.Linux
             xcim = null;
         }
 
-        
-        
-            
-        public static unsafe void Foo(
-            System.IntPtr display
+
+
+        public static byte[] SlowScreenshot(
+             System.IntPtr display
+           , System.UIntPtr d
+           , int x, int y
+           , uint width
+           , uint height
+           , System.UIntPtr plane_mask
+           , int format, bool withCursor)
+        {
+            byte[] ret = SlowScreenshotWithCursor(display, d, x, y, width, height, plane_mask, format, withCursor);
+
+            return ret;
+        }
+
+
+
+        private static unsafe byte[] SlowScreenshotWithCursor(
+              System.IntPtr display
             , System.UIntPtr d
             , int x, int y
             , uint width
             , uint height
             , System.UIntPtr plane_mask
-            , int format)
+            , int format, bool withCursor)
         {
+            byte[] result = null;
+
             XImage* img = LibX11Functions.XGetImage2(display, d, x, y, width, height, plane_mask, format);
-            
-            PaintMousePointer(display, img);
+
+            if (withCursor)
+            {
+                PaintMousePointer(display, img);
+            } // End if (withCursor) 
+
             
             int bitsPerPixel = img->bits_per_pixel;
             System.UIntPtr ptrImg = (System.UIntPtr)img;
@@ -318,7 +345,7 @@ namespace rtaNetworking.Linux
             
             
             // BMPImage * foo = CreateBitmapFromScan0(uint16_t bitsPerPixel, int32_t w, int32_t h, uint8_t* scan0);
-            string filename = "/tmp/lol1.bmp";
+            // string filename = "/tmp/lol1.bmp";
             // WriteBitmapToFile(filename, bitsPerPixel, width, height, );
             
             System.Console.WriteLine("Format: {0}, bpp: {1}", format, bitsPerPixel);
@@ -330,9 +357,21 @@ namespace rtaNetworking.Linux
             // byte[] managedArray = new byte[size];
             // System.Runtime.InteropServices.Marshal.Copy((System.IntPtr)(img->data), managedArray, 0, (int)size);
 
-            System.Drawing.Bitmap bmp = new System.Drawing.Bitmap((int)width, (int)height, stride, System.Drawing.Imaging.PixelFormat.Format24bppRgb, (System.IntPtr)img->data);
-            bmp.Save(filename);
+            using (System.Drawing.Bitmap bmp = new System.Drawing.Bitmap((int)width, (int)height, stride, System.Drawing.Imaging.PixelFormat.Format24bppRgb, (System.IntPtr)img->data))
+            {
+                // bmp.Save("/tmp/lol1.bmp");
+
+                using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
+                {
+                    bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+                    result = ms.ToArray();
+                } // End Using ms 
+
+            } // End Using bmp 
+                
             LibX11Functions.XDestroyImage2(img);
+
+            return result;
         }
 
 
