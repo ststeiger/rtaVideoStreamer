@@ -50,7 +50,8 @@ namespace ScreenshotWithGtk
         
         static void Main(string[] args)
         {
-            System.Console.WriteLine("Hello World!");
+            System.Console.WriteLine("Ignore this project!");
+            System.Console.ReadKey();
         }
     }
 }
