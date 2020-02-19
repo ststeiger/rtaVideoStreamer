@@ -208,16 +208,24 @@ namespace rtaStreamingServer
             if (string.IsNullOrEmpty(result))
             {
 
-                using (System.Net.WebClient wc = new System.Net.WebClient())
+                try
                 {
-                    result = wc.DownloadString("http://checkip.dyndns.org");
-                    string[] a = result.Split(':');
-                    string a2 = a[1].Substring(1);
-                    string[] a3=a2.Split('<');
-                    result = a3[0];
+                    using (System.Net.WebClient wc = new System.Net.WebClient())
+                    {
+                        result = wc.DownloadString("http://checkip.dyndns.org");
+                        string[] a = result.Split(':');
+                        string a2 = a[1].Substring(1);
+                        string[] a3 = a2.Split('<');
+                        result = a3[0];
+                    }
                 }
+                catch
+                { }
 
             }
+
+            if (string.IsNullOrEmpty(result))
+                result = "127.0.0.1";
             
             return result.Trim(new char[] { ' ', '\t', '\r', '\n', '\v', '\f'});
         }
@@ -331,7 +339,7 @@ namespace rtaStreamingServer
             } // End if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
 
             // TestX11_Shared();
-            PerformanceTest();
+            // PerformanceTest();
             
             // ShowActiveTcpConnections();
             
@@ -339,7 +347,7 @@ namespace rtaStreamingServer
             // TestScreenshot();
             // System.Drawing.Bitmap dstImage = rtaStreamingServer.LinuxScreenShot.GetScreenshot();
             
-            // RunServer();
+            RunServer();
             
             // https://www.cyotek.com/blog/capturing-screenshots-using-csharp-and-p-invoke
             

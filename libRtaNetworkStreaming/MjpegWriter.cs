@@ -11,12 +11,48 @@ namespace rtaNetworking.Streaming
     /// Provides a stream writer that can be used to write images as MJPEG 
     /// or (Motion JPEG) to any stream.
     /// </summary>
-    public class MjpegWriter : System.IDisposable
+    public class MjpegWriter 
+        : System.IDisposable
     {
 
         // private static byte[] CRLF = new byte[] { 13, 10 };
         // private static byte[] EmptyLine = new byte[] { 13, 10, 13, 10};
         // private string _Boundary;
+
+
+        //private static byte[] Compress(byte[] data)
+        //{
+        //    byte[] compressed = null;
+
+        //    using (System.IO.MemoryStream compressedStream = new System.IO.MemoryStream())
+        //    using (System.IO.Compression.GZipStream zipStream = new System.IO.Compression.GZipStream(compressedStream, System.IO.Compression.CompressionMode.Compress))
+        //    {
+        //        zipStream.Write(data, 0, data.Length);
+        //        zipStream.Close();
+        //        compressed = compressedStream.ToArray();
+        //    }
+
+        //    return compressed;
+        //}
+
+        //static byte[] Decompress(byte[] data)
+        //{
+        //    byte[] decompressed = null;
+
+        //    using (System.IO.MemoryStream compressedStream = new System.IO.MemoryStream(data))
+        //    using (System.IO.Compression.GZipStream zipStream = new System.IO.Compression.GZipStream(compressedStream, System.IO.Compression.CompressionMode.Decompress))
+        //    using (System.IO.MemoryStream resultStream = new System.IO.MemoryStream())
+        //    {
+        //        zipStream.CopyTo(resultStream);
+        //        decompressed = resultStream.ToArray();
+        //    }
+
+        //    return decompressed;
+        //}
+
+
+        public string Boundary { get; private set; }
+        public System.IO.Stream Stream { get; private set; }
 
 
         public MjpegWriter(System.IO.Stream stream)
@@ -35,15 +71,13 @@ namespace rtaNetworking.Streaming
 
 
 
-        public string Boundary { get; private set; }
-        public System.IO.Stream Stream { get; private set; }
-
 
         public void WriteHeader()
         {
 
             Write(
                     "HTTP/1.1 200 OK\r\n" +
+                    // "Content-Encoding: gzip\r\n" + 
                     "Content-Type: multipart/x-mixed-replace; boundary=" +
                     this.Boundary +
                     "\r\n"
@@ -53,48 +87,52 @@ namespace rtaNetworking.Streaming
         }
 
 
-        public void Write(System.Drawing.Image image)
-        {
-            System.IO.MemoryStream ms = BytesOf(image);
-            this.Write(ms);
-        }
-
 
         public void WriteWithHeader(byte[] source)
         {
             System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
+            // byte[] source2 = Compress(source);
+
             sb.AppendLine();
             sb.AppendLine(this.Boundary);
             sb.AppendLine("Content-Type: image/jpeg");
             sb.AppendLine("Content-Length: " + source.Length.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            // sb.AppendLine("Content-Length: " + source2.Length.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            //sb.AppendLine("Content-Encoding: gzip\r\n");
+
+
             sb.AppendLine();
 
             Write(sb.ToString());
+
+
 
             this.Stream.Write(source, 0, source.Length);
+            // this.Stream.Write(source2, 0, source.Length);
             Write("\r\n");
 
             this.Stream.Flush();
         }
 
 
-        public void Write(System.IO.MemoryStream imageStream)
-        {
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        //public void Write(System.IO.MemoryStream imageStream)
+        //{
+        //    System.Text.StringBuilder sb = new System.Text.StringBuilder();
 
-            sb.AppendLine();
-            sb.AppendLine(this.Boundary);
-            sb.AppendLine("Content-Type: image/jpeg");
-            sb.AppendLine("Content-Length: " + imageStream.Length.ToString(System.Globalization.CultureInfo.InvariantCulture));
-            sb.AppendLine();
+        //    sb.AppendLine();
+        //    sb.AppendLine(this.Boundary);
+        //    sb.AppendLine("Content-Type: image/jpeg");
+        //    sb.AppendLine("Content-Length: " + imageStream.Length.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        //    // sb.AppendLine("Content-Encoding: gzip\r\n");
+        //    sb.AppendLine();
 
-            Write(sb.ToString());
-            imageStream.WriteTo(this.Stream);
-            Write("\r\n");
+        //    Write(sb.ToString());
+        //    imageStream.WriteTo(this.Stream);
+        //    Write("\r\n");
 
-            this.Stream.Flush();
-        }
+        //    this.Stream.Flush();
+        //}
 
 
         private void Write(byte[] data)
@@ -116,17 +154,24 @@ namespace rtaNetworking.Streaming
         }
 
 
-        private static System.IO.MemoryStream BytesOf(System.Drawing.Image image)
-        {
-            System.IO.MemoryStream ms = new System.IO.MemoryStream();
-            image.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
-            return ms;
-        }
+
+        // public void Write(System.Drawing.Image image)
+        // {
+        //     System.IO.MemoryStream ms = BytesOf(image);
+        //     this.Write(ms);
+        // }
+
+
+        //private static System.IO.MemoryStream BytesOf(System.Drawing.Image image)
+        //{
+        //    System.IO.MemoryStream ms = new System.IO.MemoryStream();
+        //    image.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+        //    return ms;
+        //}
 
 
         public string ReadRequest(int length)
         {
-
             byte[] data = new byte[length];
             int count = this.Stream.Read(data, 0, data.Length);
 
@@ -154,7 +199,7 @@ namespace rtaNetworking.Streaming
         }
 
 
-    }
+    } // End Class MjpegWriter 
 
 
-}
+} // End Namespace rtaNetworking.Streaming 

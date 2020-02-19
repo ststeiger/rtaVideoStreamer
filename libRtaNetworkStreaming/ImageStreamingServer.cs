@@ -173,8 +173,21 @@ namespace rtaNetworking.Streaming
 
             this.Stop();
         } // End Sub ServerThread 
-        
-        
+
+
+        private static byte[] Compress(byte[] data)
+        {
+            using (System.IO.MemoryStream compressedStream = new System.IO.MemoryStream())
+            using (System.IO.Compression.GZipStream zipStream = new System.IO.Compression.GZipStream(compressedStream, System.IO.Compression.CompressionMode.Compress))
+            {
+                zipStream.Write(data, 0, data.Length);
+                zipStream.Close();
+                return compressedStream.ToArray();
+            }
+        }
+
+
+
         /// <summary>
         /// Each client connection will be served by this thread.
         /// </summary>
@@ -214,6 +227,12 @@ namespace rtaNetworking.Streaming
                             System.Threading.Thread.Sleep(this.Interval);
 
                         wr.WriteWithHeader(buffer);
+
+#if false 
+                        byte[] compressed = Compress(buffer);
+                        wr.WriteWithHeader(compressed);
+#endif
+
                     } // Next buffer 
 
                 } // End Using wr 
