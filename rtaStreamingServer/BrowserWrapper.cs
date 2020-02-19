@@ -25,7 +25,19 @@ namespace rtaStreamingServer
                 {
                     try
                     {
-                        System.Diagnostics.Process.Start("xdg-open", url);
+                        
+                        try
+                        {
+                            // /opt/firefox/firefox
+                            System.Diagnostics.Process.Start("google-chrome", url);
+                        }
+                        catch
+                        {
+                            System.Diagnostics.Process.Start("google-chrome", url);
+                            System.Diagnostics.Process.Start("xdg-open", url);
+                        }
+                        
+                        // System.Diagnostics.Process.Start("xdg-open", url);
                     }
                     catch
                     {
