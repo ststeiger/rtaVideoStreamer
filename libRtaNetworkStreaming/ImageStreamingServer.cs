@@ -73,9 +73,15 @@ namespace rtaNetworking.Streaming
             else
                 this.m_imageSource = imagesSource;
         }
-        
-        
-        
+
+
+
+        protected int m_port;
+
+        public int Port { get { return this.m_port; }  }
+
+
+
 
         /// <summary>
         /// Starts the server to accepts any new connections on the specified port.
@@ -83,6 +89,7 @@ namespace rtaNetworking.Streaming
         /// <param name="port"></param>
         public void Start(int port)
         {
+            this.m_port = port;
 
             lock (this)
             {

@@ -1,4 +1,6 @@
 ﻿
+using System;
+using System.Net.NetworkInformation;
 using Gdk;
 using Gtk;
 using GLib;
@@ -181,9 +183,185 @@ namespace rtaStreamingServer
             
         } // End Sub TestX11_Shared 
         
+
+        public static void ShowActiveTcpConnections()
+        {
+            System.Console.WriteLine("Active TCP Connections");
+            System.Net.NetworkInformation.IPGlobalProperties properties = System.Net.NetworkInformation.IPGlobalProperties.GetIPGlobalProperties();
+            System.Net.NetworkInformation.TcpConnectionInformation[] connections = properties.GetActiveTcpConnections();
+            foreach (System.Net.NetworkInformation.TcpConnectionInformation c in connections)
+            {
+                System.Console.WriteLine("{0} <==> {1}",
+                    c.LocalEndPoint.ToString(),
+                    c .RemoteEndPoint.ToString());
+            }
+        }
         
-        // dotnet publish -f netcoreapp2.1 -c Release -r linux-x64
-        // dotnet publish -f netcoreapp3.1 -c Release -r linux-x64
+        
+        public static string GetLocalIpFromDnsProvider()
+        {
+            string localIP;
+            using (System.Net.Sockets.Socket socket = new System.Net.Sockets.Socket(System.Net.Sockets.AddressFamily.InterNetwork, System.Net.Sockets.SocketType.Dgram, 0))
+            {
+                //socket.Connect("8.8.8.8", 65530); // Google
+                socket.Connect("1.1.1.1", 65530); // CloudFlare
+                System.Net.IPEndPoint endPoint = socket.LocalEndPoint as System.Net.IPEndPoint;
+                localIP = endPoint.Address.ToString();
+            }
+
+            return localIP;
+        }
+
+        public static string GetPublicIPAddress()
+        {  
+            string result = string.Empty;
+            
+            string[] checkIPUrl =
+            {
+                "http://ipv4.icanhazip.com",
+                "http://icanhazip.com",
+                "https://ipinfo.io/ip",
+                "https://checkip.amazonaws.com/",
+                "https://api.ipify.org",
+                "https://icanhazip.com",
+                "https://wtfismyip.com/text"
+            };
+            
+            using (System.Net.WebClient client = new System.Net.WebClient())
+            {
+                client.Headers["User-Agent"] = "Mozilla/4.0 (Compatible; Windows NT 5.1; MSIE 6.0) " +
+                                               "(compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322; .NET CLR 2.0.50727)";
+
+                foreach (var url in checkIPUrl)
+                {
+                    try
+                    {
+                        result = client.DownloadString(url);
+                    }
+                    catch
+                    {
+                    }
+
+                    if (!string.IsNullOrEmpty(result))
+                        break;
+                }
+            }
+
+            if (string.IsNullOrEmpty(result))
+            {
+
+                using (System.Net.WebClient wc = new System.Net.WebClient())
+                {
+                    result = wc.DownloadString("http://checkip.dyndns.org");
+                    string[] a = result.Split(':');
+                    string a2 = a[1].Substring(1);
+                    string[] a3=a2.Split('<');
+                    result = a3[0];
+                }
+
+            }
+            
+            return result.Trim(new char[] { ' ', '\t', '\r', '\n', '\v', '\f'});
+        }
+        
+        
+        public static string GetLocalIpAddress()
+        {
+            string ipAddress = null;
+            
+            try
+            {
+                ipAddress = GetLocalIpFromDnsProvider();
+            }
+            catch 
+            {
+                try
+                {
+                    ipAddress = GuessLocalIpAddress();
+                }
+                catch 
+                {
+                    try
+                    {
+                        ipAddress = System.Net.NetworkInformation.IPGlobalProperties.GetIPGlobalProperties().HostName;
+                    }
+                    catch 
+                    {
+                        ipAddress = "127.0.0.1";
+                    }
+                }
+            }
+            
+            return ipAddress;
+        } // End Function GetLocalIpAddress 
+
+        public static string GuessLocalIpAddress()
+        {
+            return GuessLocalIpAddress(null);
+        }
+        
+        
+        public static string GuessLocalIpAddress(System.Net.NetworkInformation.NetworkInterfaceType? ofType)
+        {
+            UnicastIPAddressInformation mostSuitableIp = null;
+            NetworkInterface[] networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
+            
+            foreach (NetworkInterface network in networkInterfaces)
+            {
+                if (ofType.HasValue && network.NetworkInterfaceType != ofType)
+                    continue;
+                
+                if (network.OperationalStatus != OperationalStatus.Up)
+                    continue;
+                
+                if (network.Description.ToLower().Contains("virtual")
+                    || network.Description.ToLower().Contains("pseudo")
+                )
+                    continue;
+                
+                System.Net.NetworkInformation.IPInterfaceProperties properties = network.GetIPProperties();
+                
+                if (properties.GatewayAddresses.Count == 0)
+                    continue;
+                
+                foreach (UnicastIPAddressInformation address in properties.UnicastAddresses)
+                {
+                    if (address.Address.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork)
+                        continue;
+                    
+                    if (System.Net.IPAddress.IsLoopback(address.Address))
+                        continue;
+                    
+                    if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)
+                        && !address.IsDnsEligible)
+                    {
+                        if (mostSuitableIp == null)
+                            mostSuitableIp = address;
+                        continue;
+                    }
+                    
+                    // The best IP is the IP got from DHCP server
+                    if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)
+                        && address.PrefixOrigin != PrefixOrigin.Dhcp)
+                    {
+                        if (mostSuitableIp == null || !mostSuitableIp.IsDnsEligible)
+                            mostSuitableIp = address;
+                        continue;
+                    }
+                    
+                    return address.Address.ToString();
+                }
+            }
+            
+            return mostSuitableIp != null 
+                ? mostSuitableIp.Address.ToString()
+                : "";
+        }
+        
+        
+        // https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-publish?tabs=netcore21
+        // dotnet publish -f netcoreapp2.1 -c Release -r linux-x64 -o /opt/desktop-stream/
+        // dotnet publish -f netcoreapp3.1 -c Release -r linux-x64 -o /opt/desktop-stream/
         static void Main(string[] args)
         {
             if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
@@ -194,17 +372,16 @@ namespace rtaStreamingServer
             // TestX11_Shared();
             // PerformanceTest();
             
+            // ShowActiveTcpConnections();
             
-            
-            // https://www.x.org/releases/X11R7.5/doc/man/man3/XInitThreads.3.html
+            // https://www.x.org/releases/ X11R7.5/doc/man/man3/XInitThreads.3.html
             // TestScreenshot();
             // System.Drawing.Bitmap dstImage = rtaStreamingServer.LinuxScreenShot.GetScreenshot();
-
+            
             RunServer();
-
+            
             // https://www.cyotek.com/blog/capturing-screenshots-using-csharp-and-p-invoke
-
-
+            
             System.Console.WriteLine(" --- Press any key to continue --- ");
             // System.Console.ReadKey();
             WaitForKeyPress();
@@ -291,15 +468,23 @@ namespace rtaStreamingServer
 
             _Server = new rtaNetworking.Streaming.ImageStreamingServer();
             _Server.Interval = 35;
-
+            
             _Server.Start(8080);
 
+            string port = _Server.Port.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            
+            System.Console.WriteLine("Public:  http://{0}:8080", GetPublicIPAddress(), port);
+            System.Console.WriteLine("Private: http://{0}:8080", GetLocalIpAddress(), port);
 
+            
+            
+#if false
             System.Timers.Timer tmr = new System.Timers.Timer(200);
             tmr.Elapsed += OnTimer1_Tick;
             tmr.AutoReset = true;
-            tmr.Enabled = true;
-
+            tmr.Enabled = true;    
+#endif
+            
             BrowserWrapper.OpenBrowser(link);
         } // End Sub RunServer 
 
