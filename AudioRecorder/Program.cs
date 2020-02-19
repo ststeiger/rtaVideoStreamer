@@ -52,6 +52,10 @@ namespace AudioRecorder
             System.Console.WriteLine(" --- Press any key to stop recording --- ");
             System.Console.ReadKey();
             CaptureInstance.StopRecording();
-        }
-    }
-}
+        } // End Sub Main 
+
+
+    } // End Class Program 
+
+
+} // End Namespace AudioRecorder
