@@ -51,12 +51,12 @@ namespace rtaStreamingServer
 
         } // End Sub TestGDK()
 
-
-
+        
+        
         // Linux is 4.3 times faster ! 
         public static void PerformanceTest()
         {
-            // Average (including first): 12 ms
+            // Average (including first): 12.2 ms
             if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
             {
                 for (int i = 0; i < 100; ++i)
@@ -458,25 +458,22 @@ namespace rtaStreamingServer
 
 
 
-        private static rtaNetworking.Streaming.ImageStreamingServer _Server;
+        private static rtaNetworking.Streaming.ImageStreamingServer s_server;
         private static System.DateTime time = System.DateTime.MinValue;
 
 
         static void RunServer()
         {
-            string link = string.Format("http://{0}:8080", System.Environment.MachineName);
-
-            _Server = new rtaNetworking.Streaming.ImageStreamingServer();
-            _Server.Interval = 35;
+            s_server = new rtaNetworking.Streaming.ImageStreamingServer();
+            s_server.Interval = 35;
             
-            _Server.Start(8080);
-
-            string port = _Server.Port.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            s_server.Start(8080);
             
-            System.Console.WriteLine("Public:  http://{0}:8080", GetPublicIPAddress(), port);
-            System.Console.WriteLine("Private: http://{0}:8080", GetLocalIpAddress(), port);
-
-            
+            string port = s_server.Port.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            string link = $"http://{System.Environment.MachineName}:{port}";
+            System.Console.WriteLine("Public:  http://{0}:{1}", GetPublicIPAddress(), port);
+            System.Console.WriteLine("Private: http://{0}:{1}", GetLocalIpAddress(), port);
+            System.Console.WriteLine("NetBios: http://{0}:{1}", System.Environment.MachineName, port);
             
 #if false
             System.Timers.Timer tmr = new System.Timers.Timer(200);
@@ -491,8 +488,8 @@ namespace rtaStreamingServer
 
         static void StopServer()
         {
-            if (_Server != null)
-                _Server.Stop();
+            if (s_server != null)
+                s_server.Stop();
         } // End Sub StopServer 
 
 
@@ -500,7 +497,7 @@ namespace rtaStreamingServer
         {
             System.Console.WriteLine("The Elapsed event was raised at {0:HH:mm:ss.fff}", e.SignalTime);
 
-            int count = (_Server.Clients != null) ? _Server.Clients.Count : 0;
+            int count = (s_server.Clients != null) ? s_server.Clients.Count : 0;
 
             System.Console.Write("Clients: ");
             System.Console.WriteLine(count.ToString());
