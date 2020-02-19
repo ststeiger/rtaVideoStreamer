@@ -100,6 +100,37 @@ namespace rtaNetworking.Linux
         }
 
 
+        private static System.Drawing.Imaging.ImageCodecInfo GetEncoder(System.Drawing.Imaging.ImageFormat format)  
+        {  
+            System.Drawing.Imaging.ImageCodecInfo[] codecs = System.Drawing.Imaging.ImageCodecInfo.GetImageDecoders();  
+            foreach (System.Drawing.Imaging.ImageCodecInfo codec in codecs)  
+            {  
+                if (codec.FormatID == format.Guid)  
+                {  
+                    return codec;  
+                }  
+            }  
+            return null;  
+        }  
+
+        static byte[] CompressByImageAlg(System.Drawing.Image image, int jpegQuality)
+        {
+            byte[] outputBytes = null;
+            
+            System.Drawing.Imaging.ImageCodecInfo jpegEncoder = GetEncoder(System.Drawing.Imaging.ImageFormat.Jpeg);
+            var encoderParameters = new System.Drawing.Imaging.EncoderParameters(1);
+            encoderParameters.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, jpegQuality);
+            
+            using (System.IO.MemoryStream outputStream = new System.IO.MemoryStream())
+            {
+                image.Save(outputStream, jpegEncoder, encoderParameters);
+                outputBytes = outputStream.ToArray();
+            }
+            
+            return outputBytes;
+        }
+        
+        
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
         private static unsafe byte[] UnsafeX11ScreenshotWithCursor(bool withCursor)
         {
@@ -159,12 +190,13 @@ namespace rtaNetworking.Linux
             {
                 // bmp.Save("/tmp/shtest.bmp");
 
-                using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
-                {
-                    bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
-                    result = ms.ToArray();
-                } // End Using ms 
+                // using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
+                // {
+                //     bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
+                //     result = ms.ToArray();
+                // } // End Using ms 
                 
+                result = CompressByImageAlg(bmp, 25);
             } // End Using bmp 
             
             LibX11Functions.XDestroyImage2(ximg);
