@@ -17,8 +17,4 @@
     <ProjectReference Include="..\libRtaNetworkStreaming\libRtaNetworkStreaming.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="GtkSharp" Version="3.22.25.56" />
-  </ItemGroup>
-
 </Project>

@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "rtaStreamingServer", "rtaSt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AudioRecorder", "AudioRecorder\AudioRecorder.csproj", "{DFFDFD31-52FD-41EA-B956-1480E035FA66}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScreenshotWithGtk", "ScreenshotWithGtk\ScreenshotWithGtk.csproj", "{5D0190DA-3FD2-4958-B523-1FE27140CF15}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{DFFDFD31-52FD-41EA-B956-1480E035FA66}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DFFDFD31-52FD-41EA-B956-1480E035FA66}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DFFDFD31-52FD-41EA-B956-1480E035FA66}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D0190DA-3FD2-4958-B523-1FE27140CF15}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D0190DA-3FD2-4958-B523-1FE27140CF15}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D0190DA-3FD2-4958-B523-1FE27140CF15}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D0190DA-3FD2-4958-B523-1FE27140CF15}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

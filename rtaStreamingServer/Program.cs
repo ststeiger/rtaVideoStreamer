@@ -1,56 +1,13 @@
 ﻿
-using System;
-using System.Net.NetworkInformation;
-using Gdk;
-using Gtk;
-using GLib;
-using Pango;
-using PangoSharp;
-using GLibSharp;
-using GtkSharp;
-using libRtaNetworkStreaming;
-
-
-
 namespace rtaStreamingServer
 {
 
+    using libRtaNetworkStreaming;
     using rtaNetworking.Linux;
-
+    
+    
     public class Program
     {
-        
-        
-        public static void TestGDK()
-        {
-            // https://github.com/GtkSharp/GtkSharp
-            Gdk.Window window = Gdk.Global.DefaultRootWindow;
-            if (window != null)
-            {
-                Gdk.Pixbuf pixBuf = new Gdk.Pixbuf(Gdk.Colorspace.Rgb, false, 8,
-                    window.Screen.Width, window.Screen.Height);
-
-                // Gdk.CursorType.Arrow
-                // Gdk.Display.Default.GetPointer();
-                // Gdk.Cursor.GetObject().
-                // Gdk.Display.Default.GetMonitor(0).Geometry.Bottom
-                // Gdk.Display.Default.GetMonitor(0).IsPrimary
-                // Gdk.Display.Default.NMonitors
-                // Gdk.Display.Default.GetMonitorAtPoint()
-                // Gdk.Display.Default.GetPointer();
-
-
-                // pixBuf.dr
-                // pixBuf.GetPixelsWithLength()
-                // Gdk.Pixbuf buf;
-
-                // pixBuf.GetFromDrawable(window, Gdk.Colormap.System, 0, 0, 0, 0, window.Screen.Width, window.Screen.Height);          
-                pixBuf.ScaleSimple(400, 300, Gdk.InterpType.Bilinear);
-                pixBuf.Save("screenshot0.jpeg", "jpeg");
-            } // End if (window!=null)
-
-        } // End Sub TestGDK()
-
         
         
         // Linux is 4.3 times faster ! 
@@ -71,10 +28,12 @@ namespace rtaStreamingServer
                     //} // End Using bmp 
 
                     byte[] ba = rtaNetworking.Linux.SafeX11.X11Screenshot(true);
-
+                    // System.IO.File.WriteAllBytes("/tmp/compress.jpg", ba);
+                    
                     stopWatch.Stop();
                     System.Console.WriteLine(stopWatch.ElapsedMilliseconds); // Mean value 370ms...
                 } // Next i
+                
             } // End if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux)) 
 
 
@@ -109,8 +68,7 @@ namespace rtaStreamingServer
 
         } // End Sub PerformanceTest 
         
-
-
+        
         public static void TestX11_Simple()
         {
             System.IntPtr display = LibX11Functions.XOpenDisplay(System.IntPtr.Zero);
@@ -303,15 +261,18 @@ namespace rtaStreamingServer
         
         public static string GuessLocalIpAddress(System.Net.NetworkInformation.NetworkInterfaceType? ofType)
         {
-            UnicastIPAddressInformation mostSuitableIp = null;
-            NetworkInterface[] networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
             
-            foreach (NetworkInterface network in networkInterfaces)
+            
+            System.Net.NetworkInformation.UnicastIPAddressInformation mostSuitableIp = null;
+            System.Net.NetworkInformation.NetworkInterface[] networkInterfaces = 
+                System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces();
+            
+            foreach (System.Net.NetworkInformation.NetworkInterface network in networkInterfaces)
             {
                 if (ofType.HasValue && network.NetworkInterfaceType != ofType)
                     continue;
                 
-                if (network.OperationalStatus != OperationalStatus.Up)
+                if (network.OperationalStatus != System.Net.NetworkInformation.OperationalStatus.Up)
                     continue;
                 
                 if (network.Description.ToLower().Contains("virtual")
@@ -324,7 +285,7 @@ namespace rtaStreamingServer
                 if (properties.GatewayAddresses.Count == 0)
                     continue;
                 
-                foreach (UnicastIPAddressInformation address in properties.UnicastAddresses)
+                foreach (System.Net.NetworkInformation.UnicastIPAddressInformation address in properties.UnicastAddresses)
                 {
                     if (address.Address.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork)
                         continue;
@@ -342,7 +303,7 @@ namespace rtaStreamingServer
                     
                     // The best IP is the IP got from DHCP server
                     if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows)
-                        && address.PrefixOrigin != PrefixOrigin.Dhcp)
+                        && address.PrefixOrigin != System.Net.NetworkInformation.PrefixOrigin.Dhcp)
                     {
                         if (mostSuitableIp == null || !mostSuitableIp.IsDnsEligible)
                             mostSuitableIp = address;
@@ -370,7 +331,7 @@ namespace rtaStreamingServer
             } // End if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
 
             // TestX11_Shared();
-            // PerformanceTest();
+            PerformanceTest();
             
             // ShowActiveTcpConnections();
             
@@ -378,7 +339,7 @@ namespace rtaStreamingServer
             // TestScreenshot();
             // System.Drawing.Bitmap dstImage = rtaStreamingServer.LinuxScreenShot.GetScreenshot();
             
-            RunServer();
+            // RunServer();
             
             // https://www.cyotek.com/blog/capturing-screenshots-using-csharp-and-p-invoke
             

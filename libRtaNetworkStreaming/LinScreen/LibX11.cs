@@ -106,19 +106,19 @@ namespace rtaNetworking.Linux
             foreach (System.Drawing.Imaging.ImageCodecInfo codec in codecs)  
             {  
                 if (codec.FormatID == format.Guid)  
-                {  
                     return codec;  
-                }  
-            }  
+            } // Next codec 
+            
             return null;  
-        }  
-
-        static byte[] CompressByImageAlg(System.Drawing.Image image, int jpegQuality)
+        } // End Function GetEncoder 
+        
+        
+        static byte[] CompressImage(System.Drawing.Image image, int jpegQuality)
         {
             byte[] outputBytes = null;
             
             System.Drawing.Imaging.ImageCodecInfo jpegEncoder = GetEncoder(System.Drawing.Imaging.ImageFormat.Jpeg);
-            var encoderParameters = new System.Drawing.Imaging.EncoderParameters(1);
+            System.Drawing.Imaging.EncoderParameters encoderParameters = new System.Drawing.Imaging.EncoderParameters(1);
             encoderParameters.Param[0] = new System.Drawing.Imaging.EncoderParameter(System.Drawing.Imaging.Encoder.Quality, jpegQuality);
             
             using (System.IO.MemoryStream outputStream = new System.IO.MemoryStream())
@@ -184,19 +184,22 @@ namespace rtaNetworking.Linux
             {
                 PaintMousePointer(display, ximg);
             } // End if (withCursor) 
-
-
+            
+            
             using(System.Drawing.Bitmap bmp = new System.Drawing.Bitmap(ximg->width, ximg->height, stride, System.Drawing.Imaging.PixelFormat.Format24bppRgb, (System.IntPtr) ximg->data))
             {
                 // bmp.Save("/tmp/shtest.bmp");
+#if false
+                // ZERO compression at all ! 
 
                 // using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
                 // {
                 //     bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);
                 //     result = ms.ToArray();
                 // } // End Using ms 
-                
-                result = CompressByImageAlg(bmp, 25);
+#else
+                result = CompressImage(bmp, 25);
+#endif           
             } // End Using bmp 
             
             LibX11Functions.XDestroyImage2(ximg);
