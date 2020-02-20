@@ -146,6 +146,13 @@ namespace rtaStreamingServer
         {
             System.Console.WriteLine("Active TCP Connections");
             System.Net.NetworkInformation.IPGlobalProperties properties = System.Net.NetworkInformation.IPGlobalProperties.GetIPGlobalProperties();
+            
+            // System.Console.WriteLine("Computer name: {0}", properties.HostName);
+            // System.Console.WriteLine("Domain name:   {0}", properties.DomainName);
+            // System.Console.WriteLine("Node type:     {0:f}", properties.NodeType);
+            // System.Console.WriteLine("DHCP scope:    {0}", properties.DhcpScopeName);
+            // System.Console.WriteLine("WINS proxy?    {0}", properties.IsWinsProxy);
+            
             System.Net.NetworkInformation.TcpConnectionInformation[] connections = properties.GetActiveTcpConnections();
             foreach (System.Net.NetworkInformation.TcpConnectionInformation c in connections)
             {
@@ -318,6 +325,7 @@ namespace rtaStreamingServer
                         continue;
                     }
                     
+                    // System.Console.WriteLine(address.IPv4Mask); // Subnet Mask
                     return address.Address.ToString();
                 }
             }
@@ -341,13 +349,13 @@ namespace rtaStreamingServer
             // TestX11_Shared();
             // PerformanceTest();
             
-            // ShowActiveTcpConnections();
+            ShowActiveTcpConnections();
             
             // https://www.x.org/releases/ X11R7.5/doc/man/man3/XInitThreads.3.html
             // TestScreenshot();
             // System.Drawing.Bitmap dstImage = rtaStreamingServer.LinuxScreenShot.GetScreenshot();
             
-            RunServer();
+            // RunServer();
             
             // https://www.cyotek.com/blog/capturing-screenshots-using-csharp-and-p-invoke
             
@@ -443,7 +451,7 @@ namespace rtaStreamingServer
             System.Console.WriteLine("Public:  http://{0}:{1}", GetPublicIPAddress(), port);
             System.Console.WriteLine("Private: http://{0}:{1}", GetLocalIpAddress(), port);
             System.Console.WriteLine("NetBios: http://{0}:{1}", System.Environment.MachineName, port);
-            
+                
 #if false
             System.Timers.Timer tmr = new System.Timers.Timer(200);
             tmr.Elapsed += OnTimer1_Tick;
